@@ -1,0 +1,1921 @@
+Author: trigoman#5270 (96802905322962944)
+Message: **Language**:  Clojure
+**Library**:  JDA
+**Code**: 
+**project.clj**
+```
+...
+:dependencies [[cheshire "5.8.0"]
+                 [clj-http "3.7.0"]
+                 [net.dv8tion/JDA "3.4.0_320"]
+                 [org.clojure/clojure "1.9.0"]]
+  :repositories [["jcenter" "https://jcenter.bintray.com"]]
+  ;:jvm-opts ["--add-modules" "java.xml.bind"] ; if using Java 9 uncomment this
+```
+**core.clj**
+```
+(ns dbl-server-stats.core
+  (:require [cheshire.core :as cheshire]
+            [clj-http.client :as client])
+  (:gen-class)
+  (:import (net.dv8tion.jda.core AccountType JDABuilder JDA)
+           (net.dv8tion.jda.core.hooks ListenerAdapter)
+           (net.dv8tion.jda.core.events ReadyEvent Event)
+           (net.dv8tion.jda.core.events.guild GuildJoinEvent GuildLeaveEvent)))
+
+(defn update-server-stats
+  "Sends a POST request with the new server count for the bot-id."
+  [bot-id token stats]
+  (let [api-url "https://discordbots.org/api/"
+        body (cheshire/generate-string stats)
+        headers {"Authorization" token}]
+
+    (-> (str api-url "bots/" bot-id "/stats")
+        (client/post {:body body
+                      :headers headers
+                      :content-type :json
+                      :accept :json}))))
+
+(defn bot-stats
+  "Create stats map from the JDA api object"
+  [^Event event]
+  {:server_count (-> event
+                     .getJDA
+                     .getGuildCache
+                     .size)})
+
+(defn listener-adapter [bot-id token]
+  (proxy [ListenerAdapter] []
+    (onReady [event]
+      (let [stats (bot-stats event)]
+        (println "onReady:" stats)
+        (update-server-stats bot-id token stats)))))
+
+(defn -main
+  [& args]
+  (let [bot-token "discord-api-bot-token"
+        bot-id "dbl-bot-id"
+        token "dbl-api-token"
+        jda (-> AccountType/BOT
+              JDABuilder.
+              (.setToken bot-token)
+              (.addEventListener (object-array [(listener-adapter bot-id token)]))
+              .buildBlocking)]))
+```
+
+Author: Kaleidox#8536 (141476933849448448)
+Message: **Language**: Java
+**Library**: Javacord v3
+**Maven Dependencies:**
+```xml
+<!-- https://mvnrepository.com/artifact/com.mashape.unirest/unirest-java -->
+<dependency>
+    <groupId>com.mashape.unirest</groupId>
+    <artifactId>unirest-java</artifactId>
+    <version>1.4.9</version>
+</dependency>
+```
+**Code:**
+```java
+String token = "YOUR TOKEN HERE";
+String botId = "YOUR BOT ID HERE";
+
+int serverCount = api.getServers().size();
+
+JSONObject obj = new JSONObject()
+    .put("server_count", serverCount);
+
+try {
+    Unirest.post("https://discordbots.org/api/bots/" + botId + "/stats")
+            .header("Authorization", token)
+            .header("Content-Type", "application/json")
+            .body(obj.toString())
+            .asJson();
+} catch (UnirestException e) {
+    e.printStackTrace();
+}
+```
+
+Author: King - Vlad#8339 (139836912335716352)
+Message: **Language**: Javascript
+**Library**: Discord.js, Eris, Discord.io ***and*** Discordie
+**Requirements**: You must install `dblposter` (`npm i dblposter` or `yarn add dblposter`)
+**Other notes**: The lib will automatically (or should) handle posting for you. That means on ready, guildCreate and guildDelete. And will always use sharded information. If you are afraid that it'll do anything malicious, check out <https://github.com/KingDGrizzle/dblposter>. The code is there, fully open sourced.
+**Code**: ```js
+const dbl = require("dblposter");
+const DBLPoster = new dbl(`API KEY`);
+
+// Then, depending on what you called your client
+DBLPoster.bind(client);```
+
+Author: 7coil#3175 (190519304972664832)
+Message: **Language:** bash
+**Requirements:** `curl`
+```bash
+#!/bin/bash
+USERID=
+TOKEN=
+
+curl "https://discordbots.org/api/bots/${USERID}/stats" \
+    -i -v \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -H "Authorization: ${TOKEN}" \
+    -d '{ "server_count": 10 }'
+```
+
+Note: `-i -v` are optional
+
+Author: ohlookitsAugust#1793 (280158289667555328)
+Message: **Language**: Javascript
+**Libraries**: Discord.js and Eris!
+**Requirements**: Must install `discordbots-api`! (`npm i discordbots-api`)
+**Code**
+```js
+const { DiscordBotsList } = require('discordbots-api');
+const DiscordBots = new DiscordBotsList('token');
+
+const shardID = '';
+const shardCount = ''; 
+const serverCount = '';
+const id = '';
+ 
+DiscordBots.postStatsWithShards(shardID, shardCount, serverCount, id);
+
+// Without Sharding
+const servercount = ''; // Replace '' with your guild count.
+ 
+DiscordBots.postStats(servercount);
+```
+
+Author: Hugop#2950 (125756160690094080)
+Message: **Language:** Python
+**Lib:** Discord.py
+**Requires:** aiohttp
+
+(**NOTE:** This code is inspired by <@!310418322384748544> , but uses the aiohttp approach, which is/seems to be faster)
+
+**Code:**
+
+```Python
+import aiohttp
+
+dbltoken = "token"
+url = "https://discordbots.org/api/bots/" + bot.user.id + "/stats"
+headers = {"Authorization" : dbltoken}
+
+async def on_ready():
+    payload = {"server_count"  : len(bot.servers)}
+    async with aiohttp.ClientSession() as aioclient:
+            await aioclient.post(url, data=payload, headers=headers)
+
+async def on_server_join(server):
+    payload = {"server_count"  : len(bot.servers)}
+    async with aiohttp.ClientSession() as aioclient:
+            await aioclient.post(url, data=payload, headers=headers)
+
+async def on_server_remove(server):
+    payload = {"server_count"  : len(bot.servers)}
+    async with aiohttp.ClientSession() as aioclient:
+            await aioclient.post(url, data=payload, headers=headers)
+```
+
+Author: 7coil#3175 (190519304972664832)
+Message: **Language:** JavaScript + HTML
+**Lib:** Discord.js Webpack
+**Code:**
+```js
+$.ajax({
+    method: 'POST',
+    url: `https://discordbots.org/api/bots/${client.user.id}/stats`,
+    data: {
+        server_count: client.guilds.size
+    },
+    headers: {
+        authorization: 'toe_ken'
+    }
+});
+```
+```html
+<script
+    src="https://code.jquery.com/jquery-3.2.1.slim.js"
+    integrity="sha256-tA8y0XqiwnpwmOIl3SGAcFl2RvxHjA8qp0+1uCGmRmg="
+    crossorigin="anonymous"></script>
+```
+
+Author: ShineyDev#3116 (310418322384748544)
+Message: **Language:** Python
+**Lib:** Discord.py (async / current)
+
+***(REQUIRES REQUESTS MODULE)***
+
+**Code:**
+```py
+import requests
+
+dbltoken = "token"
+url = "https://discordbots.org/api/bots/" + bot.user.id + "/stats"
+headers = {"Authorization" : dbltoken}
+
+async def on_ready():
+    payload = {"server_count"  : len(bot.servers)}
+    requests.post(url, data=payload, headers=headers)
+
+async def on_server_join(server):
+    payload = {"server_count"  : len(bot.servers)}
+    requests.post(url, data=payload, headers=headers)
+
+async def on_server_remove(server):
+    payload = {"server_count"  : len(bot.servers)}
+    requests.post(url, data=payload, headers=headers)
+```
+
+Author: trixie#3731 (265695159176396803)
+Message: **Language:** Lua
+**Library:** Discordia
+**Code:**
+```Lua
+local json = require('json')
+local http = require('coro-http')
+local discordia = require('discordia')
+local DBL_Auth = 'xxxxxxxxxxxxxxxxxxx'
+
+local client = discordia.Client()
+
+local data = {
+    ['server_count'] = #client.guilds,
+    ['shard_id'] = shard,
+    ['shard_count'] = allShards
+}
+
+http.request('POST',string.format('https://discordbots.org/api/bots/%s/stats',client.user.id),{
+    {'content-type','application/json'},
+    {'authorization',DBL_Auth}
+},json.encode(data))```
+
+Author: aetaric#1427 (188105444365959170)
+Message: **Language**: Ruby
+**Library**: discordrb
+**Code**: ```ruby
+require 'net/http'
+require 'json'
+
+body = {}
+body["server_count"] = $bot.servers.count
+body["shard_id"] = shard
+body["shard_count"] = total_shards
+
+uri = URI.parse("https://discordbots.org/api/bots/#{bot.profile.id}/stats")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "#{dbl_token}"
+request["Content-Type"] = "application/json"
+request.body = JSON.dump(body)
+
+req_options = {
+  use_ssl: uri.scheme == "https",
+}
+
+response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+  http.request(request)
+end
+```
+
+This example assumes sharding, but uses the native Net::HTTP and JSON modules instead of third party libs.
+
+Author: CircuitRCAY#3326 (255114091360681986)
+Message: **Language**: Kotlin
+**Libraries**: JDA, OkHTTP
+**Code**:
+```kotlin
+// duncte123's code adapted to Kotlin
+val url = "https://discordbots.org/api/bots/${jda.selfuser.id}/stats"
+val client = OkHTTPClient()
+val data : JSONObject = JSONObject()
+data.put("server_count", jda.guilds.size())
+val body : RequestBody = RequestBody.create(MediaType.parse("application/json"), data.toString());
+
+val request : Request = RequestBuilder()
+    .url(url)
+    .post(body)
+    .addHeader("Authorization", bot_key_here)
+    .build()
+try {
+    client().newCall(request).execute()
+} catch (e: Exception) {
+    e.printStackTrace();
+}
+```
+
+Author: IPv4#6434 (193060889111298048)
+Message: **Language:** PHP
+**Library:** N/A
+**Code:**
+```php
+$GUILDCOUNT = 10;
+$BOTID = "1234567890";
+$AUTH = "somereallylongapiauthcodefromdbl";
+
+$dblData = ["server_count"=>$GUILDCOUNT];
+$dblData = json_encode($dblData);
+$dblURL = "https://discordbots.org/api/bots/".$BOTID."/stats";
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $dblURL);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $dblData);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Authorization: '.$AUTH,
+    'Content-Type: application/json'
+));
+$result = curl_exec($ch);
+curl_close($ch);
+```
+
+Author: JustMaffie#8433 (197322731115642880)
+Message: **Note**: You have to run `pip install pydbl` first
+
+Author: JustMaffie#8433 (197322731115642880)
+Message: Async:
+```py
+import discord
+from dbl import DBLClient
+
+dbltoken = "token"
+bottoken = "token"
+
+client = DBLClient(token=dbltoken)
+bot = discord.Client()
+
+@bot.event
+async def on_server_join(server):
+    await client.post_stats(jsonObject={
+        "server_count": len(bot.servers)
+        })
+
+@bot.event
+async def on_server_leave(server):
+    await client.post_stats(jsonObject={
+        "server_count": len(bot.servers)
+        })
+
+bot.run(bottoken)
+```
+
+Author: JustMaffie#8433 (197322731115642880)
+Message: **Language**: Python
+**Library**: Discord.py rewrite/async
+**Code**:
+Rewrite:
+```py
+import discord
+from dbl import DBLClient
+
+dbltoken = "token"
+bottoken = "token"
+
+client = DBLClient(token=dbltoken)
+bot = discord.Client()
+
+@bot.event
+async def on_guild_join(server):
+    await client.post_stats(jsonObject={
+        "server_count": len(bot.guilds)
+        })
+
+@bot.event
+async def on_guild_leave(server):
+    await client.post_stats(jsonObject={
+        "server_count": len(bot.guilds)
+        })
+
+bot.run(bottoken)
+```
+
+Author: ohlookitsAugust#1793 (280158289667555328)
+Message: **Language**: Javascript
+**Library**: discord.js with shard count
+**Code**:
+```js
+// bot is your Discord client.
+const snekfetch = require('snekfetch');
+const key = 'YOUR DBL KEY';
+
+snekfetch.post(`https://discordbots.org/api/bots/${bot.user.id}/stats`)
+    .set('Authorization', key)
+    .send({ server_count: bot.guilds.size, 
+          shard_count: bot.shard.count, 
+     shard_id: bot.shard.id })
+    .then(() => console.log(`Posted to dbl.`))
+    .catch((e) => console.error(e));
+```
+
+Author: spong#3338 (87164639695110144)
+Message: **Language:** Clojure
+**Code:**
+project.clj
+```clj
+:dependencies [[org.json/json "20171018"]
+               [com.squareup/okhttp3 "3.9.1"]]
+```
+dbl.clj
+```clj
+(ns myproject.dbl
+    (:gen-class)
+    (:import 
+        [org.json JSONObject]
+        [com.squareup.okhttp3 OkHttpClient RequestBody MediaType Request]))
+
+(def client (OkHttpClient.))
+
+(defn updateStats [userId, token, servers]
+    (def url (str "https://discordbots.org/api/bots/" userId "/stats"))
+    
+    (def data (-> (JSONObject.)
+        (.put "server_count" servers)
+        .toString))
+
+    (def body (-> (RequestBody/create (MediaType/parse "application/json") data)))
+
+    (def request (-> (Request/Builder.) 
+        (.url url)
+        (.post body)
+        (.addHeader "Authorization" token)
+        .build))
+
+    (-> (client) (.newCall request) .execute))
+```
+usage:
+```clj
+(updateStats "bot user id" "auth token" servercount)
+```
+
+Author: Dim#4464 (219204779426054146)
+Message: **Language:** JavaScript
+**Library:** Discord.js
+**Note:** `client` variable may be different for you
+**Code:**
+```js
+// Default modules :^)
+const { stringify } = require('querystring');
+const { request } = require('https');
+
+const update = () => {
+  const data = stringify({ server_count: client.guilds.size });
+  const req = request({
+    host: 'discordbots.org',
+    path: `/api/bots/${client.user.id}/stats`,
+    method: 'POST',
+    headers: {
+      'Authorization': 'API TOKEN',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': Buffer.byteLength(data)
+    }
+  });
+  req.write(data);
+  req.end();
+};
+
+client.on('ready', update);
+client.on('guildCreate', update);
+client.on('guildRemove', update);
+```
+
+Author: duncte123#1245 (191231307290771456)
+Message: **Language:** Java
+**Library:** JDA
+**Code:** ```JAVA
+String url = "https://discordbots.org/api/bots/"+jda.getSelfUser().getId()+"/stats";
+String discordbots_key = "";
+
+JSONObject data = new JSONObject();
+data.put("server_count", jda.getGuilds().size());
+
+RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
+
+Request request = new Request.Builder()
+        .url(url)
+        .post(body)
+        .addHeader("User-Agent", "DiscordBot " + jda.getSelfUser().getName())
+        .addHeader("Authorization", discordbots_key)
+        .build();
+
+try {
+    new OkHttpClient().newCall(request).execute();
+} catch (IOException e) {
+    e.printStackTrace();
+}```
+Full class example: <https://gist.github.com/duncte123/d3ebf090cadddd3d91eff1da112960b4>
+
+Author: Big P#1843 (139871249567318017)
+Message: **Language**:  Javascript
+**Library**: discord.io
+**Code**:  
+```js
+const request = require('request');
+client.on("guildCreate", function guildCreate() {
+    request.post({
+        headers: {
+            "Authorization": DISCORDBOTS_KEY,
+        },
+        url: `https://discordbots.org/api/bots/${DISCORDBOTS_ID}/stats`,
+        json: true,
+        body: {"server_count": Object.keys(client.servers).length}
+    }, function (err, resp, body) {
+        console.log(body);
+    });
+});
+```
+
+Author: Phanta#1328 (121778827788550146)
+Message: **Language:** JavaScript
+**Library:** Discord.JS with request-promise-native
+**Code:**
+```js
+const request = require('request-promise-native');
+function postServerCount() {
+    return request.post({
+        uri: `https://discordbots.org/api/bots/${bot.user.id}/stats`,
+        headers: {
+            Authorization: dblToken, // Insert token here
+        },
+        json: true,
+        body: {
+            server_count: bot.guilds.size,
+        },
+    });
+}
+```
+...where `bot` is your instance of `Discord.Client`. It works pretty much the same way with just regular ol' `request`, but you'll need to pass a callback instead of returning a promise.
+
+Author: 4JR#2713 (180314310298304512)
+Message: **Language**: Python (No fstrings so no need for 3.6)
+**Note**: Replace `TOKEN` with your API Token 
+
+**Library**: discord.py rewrite (async below)
+```py
+import aiohttp
+await aiohttp.ClientSession().post('https://discordbots.org/api/bots/' + str(bot.user.id) + '/stats', json={"server_count": len(bot.guilds)}, headers={'Authorization': TOKEN})```
+
+
+You can run the code in a background task every x minutes or an `on_guild_join` (<http://discordpy.readthedocs.io/en/rewrite/api.html#discord.on_guild_join>) and `on_guild_remove` (<http://discordpy.readthedocs.io/en/rewrite/api.html#discord.on_guild_remove>)
+
+**Library**: discord.py async (rewrite above)
+```py
+import aiohttp
+await aiohttp.ClientSession().post('https://discordbots.org/api/bots/' + str(bot.user.id) + '/stats', json={"server_count": len(bot.servers)}, headers={'Authorization': TOKEN})```
+
+
+You can run the code in a background task every x minutes or an `on_server_join` (<http://discordpy.readthedocs.io/en/async/api.html#discord.on_server_join>) and `on_server_remove` (<http://discordpy.readthedocs.io/en/async/api.html#discord.on_server_remove>)
+
+*The only difference is `bot.guilds` and `bot.servers`
+
+Author: tilda#3676 (237378015141691392)
+Message: **language**: Python (again)
+**library**: discord.py rewrite and aiohttp (no aiodbl or anything)
+**code**:
+```py
+    async def dblpost(self):
+        """
+        This async function does a post of server and shard count to discordbots.org.
+        """
+        if self.config['dbl'] != "":
+            headers = {
+                'Authorization': self.config['dbl'],
+                'Content-Type': 'application/json'
+            }
+            data = {
+                'server_count': len(self.bot.guilds),
+                'shard_count': len(self.bot.shards)
+            }
+            i = await self.bot.application_info()
+            req = await self.bot.session.post(f'https://discordbots.org/api/bots/{i.id}/stats',
+                                              data=json.dumps(data), headers=headers)
+            if req.status == 200:
+                logging.info('poster[dbl]: done')
+            else:
+                t = await req.text()
+                logging.error(f'poster[dbl]: oops (code {req.status})')
+                logging.error(f'poster[dbl]: response: {t}')
+        else:
+            pass
+```
+needs python 3.6, modifications will be needed to get this working
+a bit of improved version over my last d.py + aiohttp one
+updated 11/11/17 (1:07 pm cst) to fix errors
+
+Author: Zachy#6674 (224970430660739072)
+Message: Python3.6 discord.py rewrite. In response to <@122739797646245899> 
+```py
+import aiohttp
+
+# https://discordbots.org/
+headers = {'Authorization': 'token'}
+data = {'server_count': len(self.bot.guilds)}
+api_url = 'https://discordbots.org/api/bots/' + str(self.bot.user.id) + '/stats'
+async with aiohttp.ClientSession() as session:
+    await session.post(api_url, data=data, headers=headers)```
+
+Author: Henry#6174 (122739797646245899)
+Message: Note on Python examples using Requests or Urllib: run this in another thread or use an async library, this will block your bot from handling anything else while it waits on the I/O and may crash (If youre using an asynchronous lib)
+
+Author: luke#7034 (149505704569339904)
+Message: **Javascript | Discord.js, Eris, Discordie, Discord.io**
+```js
+const superagent = require('superagent')
+
+superagent.post(`https://discordbots.org/api/bots/stats`)
+  .set('Authorization', 'YOUR DISCORDBOTS.ORG API TOKEN')
+  .send({ server_count: client.guilds && client.guilds.size ? client.guilds.size : (client.Guilds ? client.Guilds.size : Object.keys(client.Servers).length) })
+  .then(() => console.log('Updated discordbots.org stats'))
+  .catch(err => console.error(`Error updating discordbots.org stats: ${err.body || err}`));
+```
+
+You should run this code on your libs guildDelete and guildCreate events. Replace `YOUR DISCORDBOTS.ORG API TOKEN` with the bot token provided at <https://discordbots.org/api/docs> **not the user token**
+If you utilise snekfetch in your code already, you can use that with this code.
+
+Author: Professor#6699 (177286767903244288)
+Message: **Javascript | Any library**
+
+Author: tilda#3676 (237378015141691392)
+Message: **Language**: Python
+**Library**: could be disco or d.py, either tbh
+**Code**:
+```py
+import aiodbl
+
+dbl = aiodbl.Client(token='your token')
+
+async def post(id, count, shard_count=None, shard_id=None):
+    # shard_count and shard_id are optional
+    await dbl.post(id=id, count=count, shard_count=shard_count, shard_id=shard_id) # => None
+
+# do whatever from here
+```
+note this library is in sorta alpha/prototype thing. to get this lib go to https://github.com/tilda/aiodbl
+untested
+
+Author: spong#3338 (87164639695110144)
+Message: **Language**: Crystal
+**Library**: No specific discord library code but atm the only lib is discord.cr
+**Code**:
+```crystal
+require "http/client"
+require "json"
+
+token = "dab" # your discordbots.org token
+count = 52 # the number of servers your bot is in
+
+headers = HTTP::Headers{"Authorization" => token}
+
+body = {"server_count" => count}.to_json
+
+HTTP::Client.post("https://discordbots.org/api/bots/stats", headers: headers, body: body) do |res|
+  status = res.status_code
+
+  if status != 200
+    puts "Uh oh! Stats update responded with status #{status}!"
+  end
+end
+```
+
+Author: Vanished#3101 (267025484028706816)
+Message: **Language**: JavaScript
+**Library**: Discord.js
+**Code**:
+```js
+const dbl = require(`discord-bot-list`)
+ 
+const client = new dbl({
+    token: "Your API token",
+    id: "Your bot's user id"
+})
+
+client.postStats("Your bot's server count, MUST be a number, not a string", (err, res) => {
+    if(err) {
+        console.error(err)
+    } else {
+        console.log(res)
+    }
+})```
+**Note:** Before you do this in your command panel (cmd) type in :  `npm install --save discord-bot-list` to install the dbl (DiscordBotList) package then you have to type in the code!
+
+Author: Arraying#7363 (115134128717955080)
+Message: **Language/API:** Go, discordgo
+This (2nd) Go example actually features the library and is documented.
+```go
+package post // Package may be different for you.
+
+// Imports that are needed for this to work.
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "github.com/bwmarrin/discordgo"
+    "net/http"
+)
+
+/*
+ * The payload object we will be using.
+ * The name and properties are lowercase as they are not needed outside of this package.
+ */
+type payload struct {
+    serverCount int `json:"server_count"` //Indicates the JSON key name.
+}
+
+/*
+ * Like the above, this is a payload.
+ * This should be used if your bot is sharded.
+ */
+type shardPayload struct {
+    serverCount int `json:"server_count"`
+    shardId     int `json:"shard_id"`
+    shardCount  int `json:"shard_count"`
+}
+
+/*
+ * Declares the API URL and Token as constants.
+ */
+const (
+    api   = "https://discordbots.org/api/bots/%v/stats"
+    token = "YOUR DISCORDBOTS.ORG API TOKEN GOES IN HERE"
+)
+
+// SendServerCount sends the actual server count, takes in a pointer for the DiscordGo object.
+func SendServerCount(session *discordgo.Session) {
+    botID := session.State.User.ID // Gets the bot ID, presuming DGo is running a bot.
+    url := fmt.Sprintf(api, botID)
+    // This creates a payload. Use the sharded version if you need to.
+    payload := payload{
+        serverCount: len(session.State.Guilds),
+    }
+    body, err := json.Marshal(payload)
+    if err != nil {
+        panic(err) // I panic here, you can handle the error how you want.
+    }
+    request, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+    if err != nil {
+        panic(err) // Again, handle it how you want.
+    }
+    request.Header.Set("Content-Type", "application/json")
+    request.Header.Set("Authorization", token)
+    client := &http.Client{}
+    _, err = client.Do(request)
+    if err != nil {
+        panic(err) // Or add your own handler.
+    }
+}
+```
+
+Author: Habchy#1665 (162780049869635584)
+Message: **Language**: AutoHotKey
+**Library**: AHK4Discord by Habchy [<:soontm:230160205479018498>]
+**Code**:
+
+```autohotkey
+;remove maximus and put your bot name
+botname = Maximus
+
+Gui, poster:Color, 0x3cb1f9
+Gui, poster:Add, Text, x5 y5 w95 h15, %botname% API Poster
+Gui, poster:Add, Text, x5 y20 w95 h15, Made by Habchy
+Gui, poster:Add, Text, x5 y35 w60 h15, Version 1.3
+Gui, poster:Add, Button, x150 y5 w195 h40 gmaxistart, Post
+Gui, poster:Show, w349 h49, API Poster
+return
+
+posterGuiClose:
+goto exiting
+
+maxistart:
+serverfile = %A_Temp%\servercount.txt
+FileDelete %A_Temp%\servercount.txt
+MsgBox, 64, API Poster, API Poster will launch in 3 seconds.,3
+
+InputBox, servers, Server Count Poster, How many servers is %botname% on?
+Sleep, 2000
+InputBox, shards, Server Shard Poster, How many shards is %botname% on?
+Sleep, 2000
+
+FileAppend,
+(
+{
+  "server_count": %servers%,
+  "shard_id": 0,
+  "shard_count": %shards%
+}
+), %serverfile%
+FileRead, Max, %A_Temp%\servercount.txt
+
+WinHTTP := ComObjCreate("WinHTTP.WinHttpRequest.5.1")
+;~ WinHTTP.SetProxy(0)
+WinHTTP.Open("POST", "https://discordbots.org/api/bots/YOUR BOTS CLIENT ID/stats", 0)
+WinHTTP.SetRequestHeader("Authorization", "YOUR API TOKEN FOR YOUR BOT")
+WinHTTP.SetRequestHeader("Content-Type", "application/json")
+;linebreak---------------------
+WinHTTP.Send(Max)
+Result := WinHTTP.ResponseText
+Status := WinHTTP.Status
+
+msgbox % "status: " status "`n`nresult: " result
+return
+
+exiting:
+F4::
+MsgBox, 64, API Poster, Shutting down. Goodbye! 👋,2
+ExitApp
+```
+
+<:no1:341047443149946884> Don't rely on this. Use it until you know how to emplement one of the other automatic ones. Also don't fake server count.
+
+Author: 7coil#3175 (190519304972664832)
+Message: **Language**: JavaScript
+**Library**: Discord.js / Eris
+**Code**:
+
+```js
+const https = require('https');
+
+const postData = JSON.stringify({
+    server_count: client.guilds.size
+});
+
+const options = {
+    hostname: 'https://discordbots.org',
+    path: `/api/bots/${client.user.id}/stats`,
+    method: 'POST',
+    headers: {
+        'User-Agent': 'DiscordBot (https://moustacheminer.com/) Discord Guild Counter',
+        'Content-Type': 'application/json',
+        'Content-Length': postData.length,
+        Authorization: 'AUTHTOKEN'
+    }
+};
+
+const req = https.request(options, (res) => {
+    res.on('data', (data) => {
+        console.log(data.toString('utf8'));
+    });
+});
+
+req.on('error', (error) => {
+    console.error(error);
+});
+
+req.write(postData);
+req.end();
+```
+
+Note: This uses the **HTTPS** module, which is already part of Node.js. No snekfetch here.
+
+Author: Tonkku#0950 (95579865788456960)
+Message: **Language**: Javascript
+**Library**: Discord.js / Eris
+**Code**: 
+```js
+const snekfetch = require('snekfetch')
+
+setInterval(() => {
+  snekfetch.post(`https://discordbots.org/api/bots/stats`)
+    .set('Authorization', 'YOUR DISCORDBOTS.ORG API TOKEN')
+    .send({ server_count: client.guilds.size })
+    .then(() => console.log('Updated discordbots.org stats.'))
+    .catch(err => console.error(`Whoops something went wrong: ${err.body}`));
+}, 3600000)
+```
+run the code in your ready event
+
+Author: mart-w#6006 (269910584877645825)
+Message: **Language:** Python 3
+**Library:** `discord.py`, `json`, `urllib`
+**Code:**
+```python
+import json
+import urllib.request
+
+count_json = json.dumps({
+    "server_count": len(self.servers)
+})
+
+# Resolve HTTP redirects
+dbotsorg_redirect_url = urllib.request.urlopen(
+    "https://discordbots.org/api/bots/%s/stats" % (self.user.id)
+).geturl()
+
+# Construct request and post server count
+dbotsorg_req = urllib.request.Request(dbotsorg_redirect_url)
+
+dbotsorg_req.add_header(
+    "Content-Type",
+    "application/json"
+)
+
+dbotsorg_req.add_header(
+    "Authorization",
+    "<API_KEY>"
+)
+
+urllib.request.urlopen(dbotsorg_req, count_json.encode("ascii"))
+```
+
+Author: AmiT177#6849 (106444238538964992)
+Message: **Language:** Python
+**Library: ** discord.py [non-rewrite] + requests + json
+**Code:**
+```py
+import requests
+import json
+
+url = 'https://discordbots.org/api/bots/**BOT_CLIENT_ID**/stats'
+payload = {'server_count': len(client.servers)}
+headers = {'Authorization': '**BOT_KEY**' }
+requests.post(url, data=json.dumps(payload), headers=headers)
+```
+
+Author: Shengaero#9090 (211393686628597761)
+Message: **Language:** Kotlin
+**Library:** JDA (no KJDA required)
+**Code:** ```kotlin
+val client: OkHttpClient = /* your client */
+
+ // This is not a standard function with OkHttp, see the code below
+client.newRequest {
+    post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
+    url("https://discordbots.org/api/bots/${jda.selfUser.id}/stats")
+    header("Authorization", YOUR_API_KEY_HERE)
+    header("Content-Type", "application/json")
+}.enqueue(object : Callback {
+    override fun onResponse(call: Call, response: Response) = response.close()
+
+    override fun onFailure(call: Call, e: IOException) {
+        Client.log.fatal("Failed to send information to discordbots.org")
+        Client log e
+    }
+})
+
+// I use this extension for readability but it's not necessary 
+private inline fun OkHttpClient.newRequest(lazy: Request.Builder.() -> Unit) : Call {
+    val builder = Request.Builder()
+    builder.lazy()
+    return this.newCall(builder.build())
+}```
+
+Author: 7coil#3175 (190519304972664832)
+Message: **Language:** JavaScript
+**Library**: DiscordBlocks Web Edition (not Android)
+**Code**:
+https://moustacheminer.com/discord-blocks
+https://mss.ovh/1505418678.png
+
+Find in `Premade Functions` > `Bot Lists`
+
+Commonly asked questions:
+This is not Scratch
+
+Author: Natan#1289 (182245310024777728)
+Message: **Language**:  Any JVM language
+
+**Library**: Any library that runs on the JVM
+
+**Code**:  <https://github.com/natanbc/discordbots-api>
+
+**Install**: `compile 'com.github.natanbc:discordbots-api:1.4` (gradle, needs the jcenter repository)
+
+```java
+DiscordBotsAPI api = new DiscordBotsAPI("yourToken");
+
+//get upvotes
+UpvoteInfo[] upvotes = api.getUpvoters(yourBotId);
+
+//get stats
+BotStats stats = api.getBotStats(someBotId);
+
+//Get an user's info (they must have logged in on the website at least once)
+UserInfo userInfo = api.getUser(someUserId);
+
+//get a bot's info (it must be on the website)
+BotInfo botInfo = api.getBot(someBotId);
+
+//Post stats
+api.postStats(yourBotId, shardId, shardTotal, serverCount);
+//OR
+api.postStats(yourBotId, new int[]{shard1ServerCount, shard2ServerCount, shard3ServerCount, ...})
+
+//Search for bots
+BotInfo[] first10BotsWithDotAsPrefix = api.search(new Search.Builder().withPrefix(".").build());
+```
+
+Author: jagrosh#4824 (113156185389092864)
+Message: **Language**: Java
+**Library**: JDA-Utilities
+**Code**: ```java
+//  JDA-Utilities can automatically handle posting server counts when your bot joins a guild, leaves a guild, and at startup
+CommandClientBuilder ccb;
+/*
+    Insert code to create your builder here
+*/
+ccb.setDiscordBotListKey("YOUR TOKEN");
+/*
+    Insert code to build the builder, add to a JDABuilder, etc
+*/```
+
+Author: spong#3338 (87164639695110144)
+Message: **Language**: Golo (with OkHttp)
+**Library**: JDA
+**Code**:
+```golo
+let discordbotsToken = "YOUR DISCORDBOTS.ORG TOKEN"
+
+let client = OkHttpClient()
+let jsonMediaType = MediaType.parse("application/json")
+
+function sendStats = |jda| {
+    let payload = JSONObject():
+        put("server_count", jda: getGuilds(): size())
+        
+    let info = jda: getShardInfo()
+    if (info != null) {
+        payload:
+            put("shard_id", info: getShardId()):
+            put("shard_count", info: getShardTotal())
+    }
+    
+    let body = RequestBody.create(jsonMediaType, payload: toString())
+    
+    let request = Request.Builder():
+        url("https://discordbots.org/api/bots/" + jda: getSelfUser(): getId() + "/stats"):
+        addHeader("Authorization", discordbotsToken):
+        post(body):
+        build()
+    
+    client: newCall(request): execute()
+}
+```
+
+Author: Ague Mort#9036 (148336120936005632)
+Message: Language:  Java 8
+Library: JDA 3 (sharded bot) / using OkHttp3 which JDA uses, so no extra dependencies!
+Code: All the valuable strings/passwords are stored in an ENUM named Config
+```Java
+private void updateDiscordBotsOrgServerCount(JDA jda) {
+
+        String url = String.format("https://discordbots.org/api/bots/%s/stats", Config.DISCORD_CLIENT_ID.token()[0]);
+
+        JSONObject json = new JSONObject();
+        json.put("shard_id", jda.getShardInfo().getShardId());
+        json.put("shard_count", jda.getShardInfo().getShardTotal());
+        json.put("server_count", jda.getGuilds().size());
+
+        Request request = new Builder().url(url)
+                .header("Authorization", Config.DISCORD_BOTS_ORG.token()[0])
+                .header(CONTENT_TYPE, APPLICATION_JSON)
+                .post(RequestBody.create(MediaType.parse(APPLICATION_JSON), json.toString()))
+                .build();
+
+        try {
+            Response response = this.client.newCall(request).execute();
+
+            if (response.code() != 200) {
+                Logs.handler().logSystem(null, "DISCORDBOTS.ORG|FAIL");
+            } else {
+                Logs.handler().logSystem(null, "DISCORDBOTS.ORG|SUCCESS");
+            }
+            response.close();
+        } catch (IOException e) {
+            Logger.getAnonymousLogger().severe(e.getMessage());
+        }
+    }```
+
+Author: tilda#3676 (237378015141691392)
+Message: **Lang**: Python
+**Lib**: Discord.py rewrite + aiohttp
+**Code**:
+```py
+    async def dblpost(self):
+        if self.config['dbl'] != "":
+            headers = {
+                'Authorization': self.config['dbl'],
+                'Content-Type': 'application/json'
+            }
+            data = {
+                'server_count': len(self.bot.guilds),
+                'shard_count': len(self.bot.shards)
+            }
+            info = await self.bot.application_info()
+            req = await self.bot.session.post(f'https://discordbots.org/api/bots/{info.id}/stats', data=json.dumps(data), headers=headers)
+            status = req.status
+            if status == 200:
+                logging.info('poster[dbl]: done')
+            else:
+                resp = await req.text()
+                logging.error(f'poster[dbl]: oops (code {status})')
+                logging.error(f'poster[dbl]: response: {resp}')
+        else:
+            pass
+``` note: needs modification in most cases, only works on python 3.6.
+
+Author: iDerp#3616 (159074350350336000)
+Message: **Language**: C#
+**Library**: DSharpPlus
+**Code**: 
+```cs
+HttpClient client = new HttpClient();
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://discordbots.org/api/bots/<BotID>/stats");
+            string json = JsonConvert.SerializeObject(new { server_count = e.Client.Guilds.Count, shard_id = e.Client.ShardId, shard_count = e.Client.ShardCount });
+            request.Content = new StringContent(json);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            request.Headers.Add("Authorization", "<Token>");
+            HttpResponseMessage message = await client.SendAsync(request);
+            client.Dispose();
+```
+
+Author: AXAz0r#2226 (137951917644054529)
+Message: **Language**: Python
+**Library**:  discord.py
+Method without additional libraries.
+**Code**:
+```py
+import aiohttp
+
+guild_count = len(client.guilds)
+# replace guilds with servers if you're on async and not rewrite
+headers = {'Authorization': 'Your_DiscordBots_Token'}
+data = {'server_count': guild_count}
+api_url = 'https://discordbots.org/api/bots/Your_Bot_Client_ID/stats'
+async with aiohttp.ClientSession() as session:
+    await session.post(api_url, data=data, headers=headers)
+```
+
+Author: JustMaffie#8433 (197322731115642880)
+Message: lol
+
+Author: JustMaffie#8433 (197322731115642880)
+Message: **Language**: Python 
+**Library**: Any python library
+**First install the library with ``pip install dbots``**
+**Code**: 
+```py
+dbotsInstance = DBots(client_id="Bot Id Here")
+dbotsInstance.setToken(sitename="discordbotsorg", token="Token here")
+dbotsInstance.updateGuilds(guilds=100)
+```
+
+Author: MrPowerGamerBR#4185 (123170274651668480)
+Message: **Language**: Java
+**Library**: JDA
+
+(Using HttpRequest library)
+
+**Code**:
+```java
+String yourBotId = "40028922";
+String yourDiscordBotsOrgKey = "somethinglol";
+
+HttpRequest.post("https://discordbots.org/api/bots/" + yourBotId + "/stats")
+    .authorization(yourDiscordBotsOrgKey)
+    .acceptJson()
+    .send("{ \"server_count\": " + jda.getGuilds().getSize() + " }")
+    .body()
+```
+
+Author: Yukine#1956 (184632227894657025)
+Message: **Language**: Javascript (node.js)
+**Library**: discord.js (sharded version with snekfetch)
+**Code**: 
+```js
+const snekfetch = require('snekfetch')
+const dbotstoken = "YOUR TOKEN"
+
+client.shard.fetchClientValues('guilds.size').then(result => {
+const guildsizes = result.reduce((prev, val) => prev + val, 0)
+    snekfetch.post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
+        .set('Authorization', dbotstoken)
+        .send({"server_count": guildsizes})
+        .then(() => console.log(`dbotsstats updated successfully`))
+        .catch(err => console.error(err))
+})
+```
+
+Author: Enra#0080 (156324425673736192)
+Message: **WARNING** : using the Git snapshot version of Eris is not tested. Use the npmjs.org version instead (``npm i eris --save``)
+
+Author: Enra#0080 (156324425673736192)
+Message: ``package.json`` defenitions :```json
+{
+  "dependencies" : {
+   "eris" : "github:abalabahaha/eris",
+   "got" :  "^6.7.1"
+   }
+}```
+
+Author: Enra#0080 (156324425673736192)
+Message: **Language**: JavaScript (Node.js) (ECMAScript Harmony)
+**Library**: Eris (``got`` request handler)
+**Code**: ```js
+const got = require('got');
+const dBotsKey = 'TOKEN_HERE';
+
+got(`https://discordbots.org/api/bots/${client.user.id}/stats`, {
+  method: 'POST',
+  headers: {Authorization: dBotsKey, 'Content-Type': 'application/json'},
+  body: JSON.stringify({server_count: bot.guilds.size})
+ }).then(() =>  {
+     console.log('Successfully POSTed to Discord Bots');
+}).catch(err);```
+
+Author: Chipped#7011 (252541269602074635)
+Message: **Language:** Node.JS 
+**Library:** Eris (superagent http lib)
+**Code:**
+```js
+var request = require("superagent");
+var dbotsKey = "YOUR-TOKEN";
+request
+  .post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
+  .send(`{"server_count": ${client.guilds.size}}`)
+  .type('application/json')
+  .set('Authorization', dbotsKey)
+  .set('Accept', 'application/json')
+  .end(err => {
+      if (err) return console.error(err);
+      console.log("Success!");
+  });
+```
+
+Author: Natan#1289 (182245310024777728)
+Message: **Language**: Java (with okhttp)
+**Library**: JDA
+**Code**: ```java
+private static final OkHttpClient client = new OkHttpClient();
+    
+public void sendStats() throws IOException {
+    JSONObject payload = new JSONObject().put("server_count", jda.getGuilds().size());
+    JDA.ShardInfo info = jda.getShardInfo();
+    if(info != null) {
+        payload.put("shard_id", info.getShardId()).put("shard_count", info.getShardTotal());
+    }
+
+    client.newCall(new Request.Builder()
+            .url("https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats")
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Authorization", "YOUR-TOKEN-GOES-HERE")
+            .post(RequestBody.create(MediaType.parse("application/json"), payload.toString()))
+            .build()
+    ).execute().close();
+}```
+
+Author: spong#3338 (87164639695110144)
+Message: **Language**: Rust (async with hyper)
+**Code**:
+```toml
+hyper = "0.11.0"
+hyper-tls = "0.1.0"
+tokio-core = "0.1"
+futures = "0.1.14"
+```
+```rust
+extern crate hyper;
+extern crate hyper_tls;
+extern crate tokio_core;
+extern crate futures;
+
+use hyper::{Client, Request, Method};
+use hyper::header::ContentType;
+use hyper_tls::HttpsConnector;
+use tokio_core::reactor::Core;
+use futures::Future;
+
+fn main() {
+    let client_id: &str;   // bot client id
+    let server_count: i32; // server count
+    let api_token: &str;   // discordbots.org api token
+
+    // a new tokio core instance, this works as an event loop so obviously you should not create a new instance every time stats are posted
+    let mut core = Core::new().unwrap();
+    let handle = core.handle();
+    let client = Client::configure()
+        .connector(HttpsConnector::new(4, &handle).unwrap())
+        .build(&handle);
+
+    let uri = format!("https://discordbots.org/api/bots/{}/stats", client_id).parse()
+        .expect("could not parse uri");
+    let json = format!(r#"{{"server_count":{}}}"#, server_count);
+
+    let mut req = Request::new(Method::Post, uri);
+    req.headers_mut().set_raw("Authorization", api_token);
+    req.headers_mut().set(ContentType::json());
+    req.set_body(json);
+
+    let task = client.request(req).map(|res| {
+        println!("Status: {}", res.status());
+    });
+    core.run(task).expect("an error occurred when sending a request!");
+}
+```
+
+Author: Natan#1289 (182245310024777728)
+Message: **Language**: Lua
+**Library**: Discordia
+**Code**: ```lua
+function sendStats(guild_count, shard_id, total_shards)
+    http.request("POST", "https://discordbots.org/api/bots/YOUR BOT ID HERE/stats", {{"Content-Type", "application/json"}, {"Authorization", "YOUR TOKEN HERE"}}, '{"server_count":'..guild_count..', "shard_id":'..shard_id..', "shard_count":'..total_shards..'}')
+end```
+
+Same as the above one but supports sharding
+
+Author: Thomas#3693 (229563674375749633)
+Message: **language**: lua
+**library**: Discordia
+```lua
+function sendRequest(count)
+  local res, code, response_headers, status = print(http.request("POST", "https://discordbots.org/api/bots/YOUR BOT ID HERE/stats", {{"Content-Type", "application/json"}, {"Authorization", "YOUR TOKEN HERE"}}, '{"server_count":'..client.guildCount..'}'))
+end```
+
+Author: Neo#5159 (223754830747926528)
+Message: **Language**: Neo
+**Library**: discord.neo
+**Code**: 
+```neo
+from neo ; import discordbots.org
+
+
+link neo is: https://discordbots.org/api/bots/&&BOT_ID_CLIENT&&/stats
+
+neo define(neo, bot, link)::
+send = next.link.send.info === (&&SERVER_COUNT_BOT_CLIENT%%$&&(link join neo_libary.link))
+join_server = 
+bot_client&&send&&
+leave server = 
+bot_client&&send&&```
+
+Author: Tom™#7887 (248294452307689473)
+Message: **Language:** lua
+```lua
+local http = require("socket.http")
+local ltn12 = require("ltn12")
+
+function sendRequest()
+local path = "https://discordbots.org/api/bots/YOURBOTID/stats"
+  local payload = [[ {"servers":"count","shard_id":"shardid","shard_count":"shardcount"} ]]
+  local res, code, response_headers, status = http.request
+  {
+    url = path,
+    method = "POST",
+    headers =
+    {
+      ["Authorization"] = "YOURKEY", 
+      ["Content-Type"] = "application/json"
+    },
+    source = ltn12.source.string(payload), }
+end```
+**note**: never used lua a day in my life but should work ¯\_(ツ)_/¯
+
+Author: Melmsie#0006 (172571295077105664)
+Message: __Python__
+__Discord.py__
+```python
+
+async def send():
+
+    dump = json.dumps({
+                      'server_count': len(client.servers)
+                      })
+    head = {
+            'authorization': 'Yourkey',
+            'content-type' : 'application/json'
+                      }
+
+    url = '{0}/bots/yourbot/stats'.format(uri)
+
+
+    async with session.post(url, data=dump, headers=head) as resp:
+        print('returned {0.status} for {1}'.format(resp, dump))
+async def on_server_join(server):
+    await send()
+async def on_server_remove(server):
+    await send()
+]
+```
+
+Author: Xevryll#2253 (138481382794985472)
+Message: **Language:** Java 8
+**Library:** JDA
+**Code:**
+```java
+private void updateDiscordBotsCount(int i) {
+        try {
+            String auth = Credentials.DISCORDBOTS;
+
+            JSONObject json = new JSONObject().put("server_count", i);
+
+            String response = Unirest.post("https://discordbots.org/api/bots/{botId}/stats")
+                    .header("User-Agent", "Bot")
+                    .header("Authorization", auth)
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .body(json)
+                    .asString()
+                    .getStatusText();
+
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+    }
+```
+
+Author: Snazzah#0371 (158049329150427136)
+Message: **Language**: JavaScript
+**Library**: discordie
+**Code**: 
+```js
+let Discordie = require("discordie");
+let request = require("superagent");
+let bot = new Discordie();
+request.post(`https://discordbots.org/api/bots/${bot.User.id}/stats`)
+  .set('Authorization', dbots_token)
+  .send({server_count: bot.Guilds})
+  .end();
+```
+
+Author: Ague Mort#9036 (148336120936005632)
+Message: **Language**:  Java 8 (using Apache HTTP Client)
+**Library**: JDA 3 (sharded bot)
+**Code**: *All the valuable strings/passwords are stored in an ENUM named Config*
+```Java
+private static void updateDiscordBotsOrgServerCount(JDA jda) {
+        HttpClient client = HttpClientBuilder.create().disableCookieManagement().build();
+
+        URIBuilder uriBuilder = new URIBuilder();
+        uriBuilder
+                .setScheme("https")
+                .setHost("discordbots.org")
+                .setPath("/api/bots/" + Config.DISCORD_CLIENT_ID.token() + "/stats");
+
+        HttpPost post = null;
+
+        try {
+            post = new HttpPost(uriBuilder.build());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        if (post != null) {
+            post.addHeader("Authorization", Config.DISCORD_BOTS_ORG.token());
+            post.addHeader("Content-Type", "application/json");
+
+            JSONObject json = new JSONObject();
+            json.put("server_count", jda.getGuilds().size());
+            json.put("shard_id", jda.getShardInfo().getShardId());
+            json.put("shard_count", jda.getShardInfo().getShardTotal());
+
+            try {
+                StringEntity entity = new StringEntity(json.toString());
+                post.setEntity(entity);
+
+                HttpResponse response = client.execute(post);
+
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    System.out.println("[~ERROR~] Failed updating server count on discordbots.org");
+                } else {
+                    System.out.println("[SYSTEM] Successfully updated server count on discordbots.org");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }```
+
+Author: spong#3338 (87164639695110144)
+Message: **Language**: Go
+**Code**:
+```go
+import (
+    "fmt"
+    "net/http"
+    "bytes"
+)
+
+type statsForm struct {
+    ServerCount int `json:"server_count"`
+    // if you use sharding just add more fields here
+}
+
+var (
+    stats statsForm
+    clientId  string
+    authToken string
+)
+
+func stats() {
+    body, err := json.Marshal(&stats)
+    if err != nil {
+        fmt.Println("Oh no! An error!", err);
+        return;
+    }
+    client := &http.Client{}
+    req, err := http.NewRequest("POST", "https://discordbots.org/api/bots/" + clientId + "/stats", bytes.NewBuffer(body))
+    if err != nil {
+        fmt.Println("Oh no! An error!", err);
+        return;
+    }
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", authToken)
+    _, err = client.Do(req)
+    if err != nil {
+        fmt.Println("Oh no! An error!", err)
+        return
+    }
+}
+```
+
+Author: gio#0335 (201742045952344064)
+Message: Language: Python 3.6.1+
+Library: discord.py 1.0+
+Code:
+```py
+import aiohttp
+
+async def server_count():
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        async with aiohttp.ClientSession() as session:
+            payload = {'server_count': len(bot.guilds)}
+            header_one = {'Content-Type': 'application/json', 'Authorization': ''}
+            header_two = {'Content-Type': 'application/json', 'Authorization': ''}
+            # Discord Bots
+            await session.post(f'https://bots.discord.pw/api/bots/{bot.user.id}/stats', json=payload, headers=header_one)
+            # Discord Bot List
+            await session.post(f'https://discordbots.org/api/bots/{bot.user.id}/stats', json=payload, headers=header_two)
+            await asyncio.sleep(1800) # sleeps every 30 minutes
+
+bot.loop.create_task(server_count()) # creates background task
+```
+
+Author: Tactic Alpha#0199 (159023220140277760)
+Message: **Lang**: Also Python but cleaner
+```python
+import requests
+requests.request(
+    'POST',
+    'https://discordbots.org/api/bots/BOTID/stats',
+    headers = {
+        'Authorization': 'Your auth key'
+    },
+    data = {
+        'server_count': server_count
+    }
+)```
+*Disclaimer*: I thought requests was in the standard library but it's not, just `pip install requests` to use this
+
+Author: Ayylien™#3103 (248214880379863041)
+Message: **Language:** Java
+**Required:** Unirest
+```java
+Unirest.post(URL) .header("Authorization", Token)
+.field("server_count", serverCount);
+```
+
+Author: tilda#3676 (237378015141691392)
+Message: If you use timers for posting to the API, check out this one for Discord.py:
+
+```py
+async def botstats():
+  while True:
+    async with aiohttp.ClientSession() as session:
+      payload = json.dumps({
+        'server_count': len(bot.servers)
+      })
+
+      headers = {
+        'authorization': config['dbots'],
+        'content-type': 'application/json'
+      }
+      dbl_headers = {
+        'authorization': config['dbl'],
+        'content-type': 'application/json'
+      }
+
+      dbots_url = 'https://bots.discord.pw/api/bots/' + config['botid'] + '/stats'
+      dbl_url = 'https://discordbots.org/api/bots/' + config['botid'] + '/stats'
+      async with session.post(dbl_url, data=payload, headers=dbl_headers) as dbl_resp:
+        logging.info('dbl: posted with code' + str(dbl_resp.status))
+      async with session.post(dbots_url, data=payload, headers=headers) as resp:
+        logging.info('dbots: posted with code' + str(resp.status))
+      await asyncio.sleep(3600) # report to DBL/dbots every hour
+```
+Notes:
+- This code is taken straight from my bot.
+- Part of this code is from R. Danny :P
+- You probably need to change the `headers` and `dbl_headers` to suit your config (and maybe a few other things).
+- You should also probably change the format to suit your config.
+- My setup is probably temporary - and it will be changed to suit my flow of server joins in the future.
+
+Author: Snazzah#0371 (158049329150427136)
+Message: **Language**: Ruby
+**Library**: discordrb
+**Code**: 
+```rb
+bot = Discordrb::Commands::CommandBot.new(token: token, prefix: ['your_prefix_here'])
+RestClient.post("https://discordbots.org/api/bots/#{bot.bot_user.id}/stats", '{"server_count":'+bot.servers.count+'}', :'Authorization' => "DBOTS_TOKEN", :'Content-Type' => :json);
+```
+
+Author: Tom™#7887 (248294452307689473)
+Message: Language: Python3.5+
+Library: Discord.py
+req: aiohttp 2.x
+Code:
+```py
+import json
+import aiohttp
+uri = 'https://discordbots.org/api'
+
+class botsorgapi:
+    def __init__(self, bot):
+        self.bot = bot
+        self.session = aiohttp.ClientSession()
+
+    def __unload(self):
+        self.bot.loop.create_task(self.session.close())
+
+    async def send(self):
+        dump = json.dumps({
+            'server_count': len(self.bot.servers)
+        })
+        head = {
+            'authorization': 'yourkey',
+            'content-type' : 'application/json'
+        }
+
+        url = '{0}/bots/(your id)/stats'.format(uri)
+
+        async with self.session.post(url, data=dump, headers=head) as resp:
+            print('returned {0.status} for {1}'.format(resp, dump))
+
+    async def on_server_join(self, server):
+        await self.send()
+
+    async def on_server_remove(self, server):
+        await self.send()
+
+    async def on_ready(self):
+        await self.send()
+
+
+def setup(bot):
+    bot.add_cog(botsorgapi(bot))```
+ no shards
+
+Author: ℒℯ 𝓦𝓲𝓷𝓽𝓮𝓻-𝔂 ℱℴ𝓍#9815 (288996157202497536)
+Message: Java using Unirest (http://unirest.io/java.html)
+```java
+public static void postStats(int serverCount) {
+    JSONObject obj = new JSONObject();
+    obj.put("server_count", serverCount);
+    try {
+        Unirest.post("https://discordbots.org/api/bots/:id/stats")
+            .header("Authorization", "Your token here")
+            .header("Content-Type", "application/json")
+            .body(obj.toString())
+            .asJson();
+    } catch(UnirestException e) {
+        e.printStackTrace();
+    }
+}
+```
+
+Author: Francis#6565 (116079569349378049)
+Message: ```py
+@bot.event
+async def update():
+
+    payload = json.dumps({
+        'shard_id': 0,
+        'shard_count': 10,
+        'server_count': len(bot.servers)
+    })
+
+    headers = {
+        'authorization': dbots_key,
+        'content-type': 'application/json'
+    }
+
+    headers2 = {
+        'authorization': Oliy_key,
+        'content-type': 'application/json'
+    }
+
+    DISCORD_BOTS_API = 'https://bots.discord.pw/api'
+    Oliy_api = 'https://discordbots.org/api'
+
+# discordbots.org
+    url = '{0}/bots/205224819883638785/stats'.format(Oliy_api)
+    async with session.post(url, data=payload, headers=headers2) as resp:
+        logger.info('SERVER COUNT UPDATED.\ndiscordbots.org statistics returned {0.status} for {1}\n'.format(resp, payload))
+
+# bots.discord.pw
+    url = '{0}/bots/205224819883638785/stats'.format(DISCORD_BOTS_API)
+    async with session.post(url, data=payload, headers=headers) as resp:
+        logger.info('SERVER COUNT UPDATED.\nbots.discord.pw statistics returned {0.status} for {1}\n'.format(resp, payload))
+
+# carbonitex
+    payload = {
+         'shard_id': 0,
+         'shard_count': 10,
+         'server_count': len(bot.servers)
+    }
+
+    headers3 = {
+        'user-agent': 'YouTube/2.0',
+        'content-type': 'application/json'
+    }
+
+    url = 'https://www.carbonitex.net/discord/data/botdata.php?key=redacted'
+    async with session.post(url, data=payload, headers=headers3) as resp:
+        logger.info('UPDATED SERVER COUNT\nCarbon statistics returned {0.status} for {1}\n'.format(resp, payload))
+```
+
+Author: Francis#6565 (116079569349378049)
+Message: and to be on the safe side you can add `@bot.event`
+
+Author: Francis#6565 (116079569349378049)
+Message: ```py
+import aiohttp
+uri = 'https://discordbots.org/api'
+
+    async def send():
+        dump = {
+            'shard_id': str(bot.shard_id),
+            'shard_count': str(bot.shard_count),
+            'server_count': len(bot.servers)
+        }
+        head = {
+            'authorization': 'yourkey',
+            'content-type' : 'application/json'
+        }
+
+        url = '{0}/bots/(your id)/stats'.format(uri)
+
+        async with session.post(url, data=dump, headers=head) as resp:
+            print('returned {0.status} for {1}'.format(resp, dump))
+
+    async def on_server_join(server):
+        await self.send()
+
+    async def on_server_remove(server):
+        await send()
+
+    async def on_ready():
+        await send()
+```
+
+Author: Tis_awesomeness#8617 (211261249386708992)
+Message: **Language:** Java
+**Library:** JDA (works with other libraries if you edit it)
+**Code:**
+```java
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
+public class GuildCountExample {
+    public void sendGuilds() {
+        String url = "https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats";
+        int serverCount = jda.getGuilds().size();
+        int shardId = jda.getShardInfo().getShardId();
+        int shardCount = jda.getShardInfo().getShardTotal();
+        String query = "{\"server_count\": " + serverCount + ", \"shard_id\": " + shardId + ", \"shard_count\": " + shardCount + "}";
+        String token = jda.getToken();
+        String charset = java.nio.charset.StandardCharsets.UTF_8.name();
+        
+        URLConnection conn = new URL(url).openConnection();
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Accept-Charset", charset);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Authorization", token);
+        
+        OutputStream output = conn.getOutputStream();
+        output.write(query.getBytes(charset));
+        output.close();
+    }
+}
+```
+
+Author: Tom™#7887 (248294452307689473)
+Message: Language: Python3.5+
+Library: Discord.py
+req: aiohttp 2.x
+Code:
+```py
+import json
+import aiohttp
+uri = 'https://discordbots.org/api'
+
+class botsorgapi:
+    def __init__(self, bot):
+        self.bot = bot
+        self.session = aiohttp.ClientSession()
+
+    def __unload(self):
+        self.bot.loop.create_task(self.session.close())
+
+    async def send(self):
+        dump = json.dumps({
+            'shard_id': str(self.bot.shard_id),
+            'shard_count': str(self.bot.shard_count),
+            'server_count': len(self.bot.servers)
+        })
+        head = {
+            'authorization': 'yourkey',
+            'content-type' : 'application/json'
+        }
+
+        url = '{0}/bots/(your id)/stats'.format(uri)
+
+        async with self.session.post(url, data=dump, headers=head) as resp:
+            print('returned {0.status} for {1}'.format(resp, dump))
+
+    async def on_server_join(self, server):
+        await self.send()
+
+    async def on_server_remove(self, server):
+        await self.send()
+
+    async def on_ready(self):
+        await self.send()
+
+
+def setup(bot):
+    bot.add_cog(botsorgapi(bot))
+```
+
+Author: Mercy#6000 (236514700257525772)
+Message: **Language**: Python
+**Library**: Discord.py
+**Code**:```py
+import json
+import aiohttp
+uri = 'https://discordbots.org/api'
+class botsorgapi:
+    def __init__(self, bot):
+        self.bot = bot
+        self.session = aiohttp.ClientSession()
+    def __unload(self):
+        self.bot.loop.create_task(self.session.close())
+    async def send(self):
+        dump = json.dumps({
+            'shard_id': str(self.bot.shard_id),
+            'shard_count': str(self.bot.shard_count),
+            'server_count': len(self.bot.servers)
+        })
+        head = {
+            'authorization': 'yourkey',
+            'content-type' : 'application/json'
+        }
+        url = '{0}/bots/213868823151902721/stats'.format(uri)
+        async with self.session.post(url, data=dump, headers=head) as resp:
+    async def on_server_join(self, server):
+        await self.update()
+    async def on_server_remove(self, server):
+        await self.update()
+    async def on_ready(self):
+        await self.update()
+def setup(bot):
+    bot.add_cog(botsorg(bot))
+```
+
+Author: Erlite#2215 (244165871562391552)
+Message: **Language:** C#
+**Library:** Discord.NET
+**Code:**
+```cs
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using (var webclient = new HttpClient())
+using (var content = new StringContent($"{{ \"server_count\": {client.Guilds.Count}}}", Encoding.UTF8, "application/json"))
+{
+    webclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token");
+    HttpResponseMessage response = await webclient.PostAsync("https://discordbots.org/api/bots/YOUR_BOT_ID_HERE/stats", content);
+}
+```
+
+**Client is your DiscordSocketClient**
+
+Author: Professor#6699 (177286767903244288)
+Message: Jay Ess example to post server count using snekfetch best http module <:Thankeng:268552117885599745> 
+
+```js
+const snekfetch = require('snekfetch')
+
+snekfetch.post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
+  .set('Authorization', 'UR DBOTS.ORG KEY')
+  .send({ server_count: client.guilds.size })
+  .then(console.log('Updated dbots.org status.'))
+  .catch(e => console.warn('dbots.org down spam @oliy'));
+```
+*NOTE: this code was written for discord.js but you can just change source of server count and id to work for other js libs*
