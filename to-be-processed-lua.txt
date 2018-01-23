@@ -1,0 +1,42 @@
+Author: trixie#3731 (265695159176396803)
+Message: **Language:** Lua
+**Library:** Discordia
+**Code:**
+```Lua
+local json = require('json')
+local http = require('coro-http')
+local discordia = require('discordia')
+local DBL_Auth = 'xxxxxxxxxxxxxxxxxxx'
+
+local client = discordia.Client()
+
+local data = {
+    ['server_count'] = #client.guilds,
+    ['shard_id'] = shard,
+    ['shard_count'] = allShards
+}
+
+http.request('POST',string.format('https://discordbots.org/api/bots/%s/stats',client.user.id),{
+    {'content-type','application/json'},
+    {'authorization',DBL_Auth}
+},json.encode(data))```
+
+
+Author: Natan#1289 (182245310024777728)
+Message: **Language**: Lua
+**Library**: Discordia
+**Code**: ```lua
+function sendStats(guild_count, shard_id, total_shards)
+    http.request("POST", "https://discordbots.org/api/bots/YOUR BOT ID HERE/stats", {{"Content-Type", "application/json"}, {"Authorization", "YOUR TOKEN HERE"}}, '{"server_count":'..guild_count..', "shard_id":'..shard_id..', "shard_count":'..total_shards..'}')
+end```
+Supports sharding
+
+
+Author: Thomas#3693 (229563674375749633)
+Message: **language**: lua
+**library**: Discordia
+```lua
+function sendRequest(count)
+  local res, code, response_headers, status = print(http.request("POST", "https://discordbots.org/api/bots/YOUR BOT ID HERE/stats", {{"Content-Type", "application/json"}, {"Authorization", "YOUR TOKEN HERE"}}, '{"server_count":'..client.guildCount..'}'))
+end```
+No sharding
