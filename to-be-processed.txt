@@ -1,68 +1,3 @@
-Author: trigoman#5270 (96802905322962944)
-Message: **Language**:  Clojure
-**Library**:  JDA
-**Code**: 
-**project.clj**
-```
-...
-:dependencies [[cheshire "5.8.0"]
-                 [clj-http "3.7.0"]
-                 [net.dv8tion/JDA "3.4.0_320"]
-                 [org.clojure/clojure "1.9.0"]]
-  :repositories [["jcenter" "https://jcenter.bintray.com"]]
-  ;:jvm-opts ["--add-modules" "java.xml.bind"] ; if using Java 9 uncomment this
-```
-**core.clj**
-```
-(ns dbl-server-stats.core
-  (:require [cheshire.core :as cheshire]
-            [clj-http.client :as client])
-  (:gen-class)
-  (:import (net.dv8tion.jda.core AccountType JDABuilder JDA)
-           (net.dv8tion.jda.core.hooks ListenerAdapter)
-           (net.dv8tion.jda.core.events ReadyEvent Event)
-           (net.dv8tion.jda.core.events.guild GuildJoinEvent GuildLeaveEvent)))
-
-(defn update-server-stats
-  "Sends a POST request with the new server count for the bot-id."
-  [bot-id token stats]
-  (let [api-url "https://discordbots.org/api/"
-        body (cheshire/generate-string stats)
-        headers {"Authorization" token}]
-
-    (-> (str api-url "bots/" bot-id "/stats")
-        (client/post {:body body
-                      :headers headers
-                      :content-type :json
-                      :accept :json}))))
-
-(defn bot-stats
-  "Create stats map from the JDA api object"
-  [^Event event]
-  {:server_count (-> event
-                     .getJDA
-                     .getGuildCache
-                     .size)})
-
-(defn listener-adapter [bot-id token]
-  (proxy [ListenerAdapter] []
-    (onReady [event]
-      (let [stats (bot-stats event)]
-        (println "onReady:" stats)
-        (update-server-stats bot-id token stats)))))
-
-(defn -main
-  [& args]
-  (let [bot-token "discord-api-bot-token"
-        bot-id "dbl-bot-id"
-        token "dbl-api-token"
-        jda (-> AccountType/BOT
-              JDABuilder.
-              (.setToken bot-token)
-              (.addEventListener (object-array [(listener-adapter bot-id token)]))
-              .buildBlocking)]))
-```
-
 Author: 7coil#3175 (190519304972664832)
 Message: **Language:** bash
 **Requirements:** `curl`
@@ -159,46 +94,6 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 ));
 $result = curl_exec($ch);
 curl_close($ch);
-```
-
-Author: spong#3338 (87164639695110144)
-Message: **Language:** Clojure
-**Code:**
-project.clj
-```clj
-:dependencies [[org.json/json "20171018"]
-               [com.squareup/okhttp3 "3.9.1"]]
-```
-dbl.clj
-```clj
-(ns myproject.dbl
-    (:gen-class)
-    (:import 
-        [org.json JSONObject]
-        [com.squareup.okhttp3 OkHttpClient RequestBody MediaType Request]))
-
-(def client (OkHttpClient.))
-
-(defn updateStats [userId, token, servers]
-    (def url (str "https://discordbots.org/api/bots/" userId "/stats"))
-    
-    (def data (-> (JSONObject.)
-        (.put "server_count" servers)
-        .toString))
-
-    (def body (-> (RequestBody/create (MediaType/parse "application/json") data)))
-
-    (def request (-> (Request/Builder.) 
-        (.url url)
-        (.post body)
-        (.addHeader "Authorization" token)
-        .build))
-
-    (-> (client) (.newCall request) .execute))
-```
-usage:
-```clj
-(updateStats "bot user id" "auth token" servercount)
 ```
 
 Author: spong#3338 (87164639695110144)
@@ -427,28 +322,6 @@ join_server =
 bot_client&&send&&
 leave server = 
 bot_client&&send&&```
-
-Author: Tom™#7887 (248294452307689473)
-Message: **Language:** lua
-```lua
-local http = require("socket.http")
-local ltn12 = require("ltn12")
-
-function sendRequest()
-local path = "https://discordbots.org/api/bots/YOURBOTID/stats"
-  local payload = [[ {"servers":"count","shard_id":"shardid","shard_count":"shardcount"} ]]
-  local res, code, response_headers, status = http.request
-  {
-    url = path,
-    method = "POST",
-    headers =
-    {
-      ["Authorization"] = "YOURKEY", 
-      ["Content-Type"] = "application/json"
-    },
-    source = ltn12.source.string(payload), }
-end```
-**note**: never used lua a day in my life but should work ¯\_(ツ)_/¯
 
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Go
