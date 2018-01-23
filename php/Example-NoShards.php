@@ -6,7 +6,7 @@ $GUILDCOUNT = 10; // Change Me
 $BOTID = "DISCORDBOTID"; // Change Me
 $AUTH = "DBLAPIKEY"; // Change Me
 
-$dblData = ["server_count"=>$GUILDCOUNT];
+$dblData = Array("server_count"=>$GUILDCOUNT);
 $dblData = json_encode($dblData);
 $dblURL = "https://discordbots.org/api/bots/".$BOTID."/stats";
 
@@ -16,7 +16,7 @@ curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $dblData);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+curl_setopt($ch, CURLOPT_HTTPHEADER, Array(
     'Authorization: '.$AUTH,
     'Content-Type: application/json'
 ));
