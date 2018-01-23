@@ -45,30 +45,6 @@ end
 
 This example assumes sharding, but uses the native Net::HTTP and JSON modules instead of third party libs.
 
-Author: CircuitRCAY#3326 (255114091360681986)
-Message: **Language**: Kotlin
-**Libraries**: JDA, OkHTTP
-**Code**:
-```kotlin
-// duncte123's code adapted to Kotlin
-val url = "https://discordbots.org/api/bots/${jda.selfuser.id}/stats"
-val client = OkHTTPClient()
-val data : JSONObject = JSONObject()
-data.put("server_count", jda.guilds.size())
-val body : RequestBody = RequestBody.create(MediaType.parse("application/json"), data.toString());
-
-val request : Request = RequestBuilder()
-    .url(url)
-    .post(body)
-    .addHeader("Authorization", bot_key_here)
-    .build()
-try {
-    client().newCall(request).execute()
-} catch (e: Exception) {
-    e.printStackTrace();
-}
-```
-
 Author: IPv4#6434 (193060889111298048)
 Message: **Language:** PHP
 **Library:** N/A
@@ -180,34 +156,6 @@ ExitApp
 ```
 
 <:no1:341047443149946884> Don't rely on this. Use it until you know how to emplement one of the other automatic ones. Also don't fake server count.
-
-Author: Shengaero#9090 (211393686628597761)
-Message: **Language:** Kotlin
-**Library:** JDA (no KJDA required)
-**Code:** ```kotlin
-val client: OkHttpClient = /* your client */
-
- // This is not a standard function with OkHttp, see the code below
-client.newRequest {
-    post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
-    url("https://discordbots.org/api/bots/${jda.selfUser.id}/stats")
-    header("Authorization", YOUR_API_KEY_HERE)
-    header("Content-Type", "application/json")
-}.enqueue(object : Callback {
-    override fun onResponse(call: Call, response: Response) = response.close()
-
-    override fun onFailure(call: Call, e: IOException) {
-        Client.log.fatal("Failed to send information to discordbots.org")
-        Client log e
-    }
-})
-
-// I use this extension for readability but it's not necessary 
-private inline fun OkHttpClient.newRequest(lazy: Request.Builder.() -> Unit) : Call {
-    val builder = Request.Builder()
-    builder.lazy()
-    return this.newCall(builder.build())
-}```
 
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Golo (with OkHttp)
