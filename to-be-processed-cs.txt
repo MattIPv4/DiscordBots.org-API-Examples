@@ -1,0 +1,32 @@
+Author: iDerp#3616 (159074350350336000)
+Message: **Language**: C#
+**Library**: DSharpPlus
+**Code**: 
+```cs
+HttpClient client = new HttpClient();
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://discordbots.org/api/bots/<BotID>/stats");
+            string json = JsonConvert.SerializeObject(new { server_count = e.Client.Guilds.Count, shard_id = e.Client.ShardId, shard_count = e.Client.ShardCount });
+            request.Content = new StringContent(json);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            request.Headers.Add("Authorization", "<Token>");
+            HttpResponseMessage message = await client.SendAsync(request);
+            client.Dispose();
+```
+
+
+Author: Erlite#2215 (244165871562391552)
+Message: **Language:** C#
+**Library:** Discord.NET
+**Code:**
+```cs
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using (var webclient = new HttpClient())
+using (var content = new StringContent($"{{ \"server_count\": {client.Guilds.Count}}}", Encoding.UTF8, "application/json"))
+{
+    webclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token");
+    HttpResponseMessage response = await webclient.PostAsync("https://discordbots.org/api/bots/YOUR_BOT_ID_HERE/stats", content);
+}
+```
+**Client is your DiscordSocketClient**
