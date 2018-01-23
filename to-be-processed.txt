@@ -63,39 +63,6 @@ Message: **Language**:  Clojure
               .buildBlocking)]))
 ```
 
-Author: Kaleidox#8536 (141476933849448448)
-Message: **Language**: Java
-**Library**: Javacord v3
-**Maven Dependencies:**
-```xml
-<!-- https://mvnrepository.com/artifact/com.mashape.unirest/unirest-java -->
-<dependency>
-    <groupId>com.mashape.unirest</groupId>
-    <artifactId>unirest-java</artifactId>
-    <version>1.4.9</version>
-</dependency>
-```
-**Code:**
-```java
-String token = "YOUR TOKEN HERE";
-String botId = "YOUR BOT ID HERE";
-
-int serverCount = api.getServers().size();
-
-JSONObject obj = new JSONObject()
-    .put("server_count", serverCount);
-
-try {
-    Unirest.post("https://discordbots.org/api/bots/" + botId + "/stats")
-            .header("Authorization", token)
-            .header("Content-Type", "application/json")
-            .body(obj.toString())
-            .asJson();
-} catch (UnirestException e) {
-    e.printStackTrace();
-}
-```
-
 Author: 7coil#3175 (190519304972664832)
 Message: **Language:** bash
 **Requirements:** `curl`
@@ -257,32 +224,6 @@ usage:
 (updateStats "bot user id" "auth token" servercount)
 ```
 
-Author: duncte123#1245 (191231307290771456)
-Message: **Language:** Java
-**Library:** JDA
-**Code:** ```JAVA
-String url = "https://discordbots.org/api/bots/"+jda.getSelfUser().getId()+"/stats";
-String discordbots_key = "";
-
-JSONObject data = new JSONObject();
-data.put("server_count", jda.getGuilds().size());
-
-RequestBody body = RequestBody.create(MediaType.parse("application/json"), data.toString());
-
-Request request = new Request.Builder()
-        .url(url)
-        .post(body)
-        .addHeader("User-Agent", "DiscordBot " + jda.getSelfUser().getName())
-        .addHeader("Authorization", discordbots_key)
-        .build();
-
-try {
-    new OkHttpClient().newCall(request).execute();
-} catch (IOException e) {
-    e.printStackTrace();
-}```
-Full class example: <https://gist.github.com/duncte123/d3ebf090cadddd3d91eff1da112960b4>
-
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Crystal
 **Library**: No specific discord library code but atm the only lib is discord.cr
@@ -396,53 +337,6 @@ private inline fun OkHttpClient.newRequest(lazy: Request.Builder.() -> Unit) : C
     return this.newCall(builder.build())
 }```
 
-Author: Natan#1289 (182245310024777728)
-Message: **Language**:  Any JVM language
-
-**Library**: Any library that runs on the JVM
-
-**Code**:  <https://github.com/natanbc/discordbots-api>
-
-**Install**: `compile 'com.github.natanbc:discordbots-api:1.4` (gradle, needs the jcenter repository)
-
-```java
-DiscordBotsAPI api = new DiscordBotsAPI("yourToken");
-
-//get upvotes
-UpvoteInfo[] upvotes = api.getUpvoters(yourBotId);
-
-//get stats
-BotStats stats = api.getBotStats(someBotId);
-
-//Get an user's info (they must have logged in on the website at least once)
-UserInfo userInfo = api.getUser(someUserId);
-
-//get a bot's info (it must be on the website)
-BotInfo botInfo = api.getBot(someBotId);
-
-//Post stats
-api.postStats(yourBotId, shardId, shardTotal, serverCount);
-//OR
-api.postStats(yourBotId, new int[]{shard1ServerCount, shard2ServerCount, shard3ServerCount, ...})
-
-//Search for bots
-BotInfo[] first10BotsWithDotAsPrefix = api.search(new Search.Builder().withPrefix(".").build());
-```
-
-Author: jagrosh#4824 (113156185389092864)
-Message: **Language**: Java
-**Library**: JDA-Utilities
-**Code**: ```java
-//  JDA-Utilities can automatically handle posting server counts when your bot joins a guild, leaves a guild, and at startup
-CommandClientBuilder ccb;
-/*
-    Insert code to create your builder here
-*/
-ccb.setDiscordBotListKey("YOUR TOKEN");
-/*
-    Insert code to build the builder, add to a JDABuilder, etc
-*/```
-
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Golo (with OkHttp)
 **Library**: JDA
@@ -476,40 +370,6 @@ function sendStats = |jda| {
 }
 ```
 
-Author: Ague Mort#9036 (148336120936005632)
-Message: Language:  Java 8
-Library: JDA 3 (sharded bot) / using OkHttp3 which JDA uses, so no extra dependencies!
-Code: All the valuable strings/passwords are stored in an ENUM named Config
-```Java
-private void updateDiscordBotsOrgServerCount(JDA jda) {
-
-        String url = String.format("https://discordbots.org/api/bots/%s/stats", Config.DISCORD_CLIENT_ID.token()[0]);
-
-        JSONObject json = new JSONObject();
-        json.put("shard_id", jda.getShardInfo().getShardId());
-        json.put("shard_count", jda.getShardInfo().getShardTotal());
-        json.put("server_count", jda.getGuilds().size());
-
-        Request request = new Builder().url(url)
-                .header("Authorization", Config.DISCORD_BOTS_ORG.token()[0])
-                .header(CONTENT_TYPE, APPLICATION_JSON)
-                .post(RequestBody.create(MediaType.parse(APPLICATION_JSON), json.toString()))
-                .build();
-
-        try {
-            Response response = this.client.newCall(request).execute();
-
-            if (response.code() != 200) {
-                Logs.handler().logSystem(null, "DISCORDBOTS.ORG|FAIL");
-            } else {
-                Logs.handler().logSystem(null, "DISCORDBOTS.ORG|SUCCESS");
-            }
-            response.close();
-        } catch (IOException e) {
-            Logger.getAnonymousLogger().severe(e.getMessage());
-        }
-    }```
-
 Author: iDerp#3616 (159074350350336000)
 Message: **Language**: C#
 **Library**: DSharpPlus
@@ -524,46 +384,6 @@ HttpClient client = new HttpClient();
             HttpResponseMessage message = await client.SendAsync(request);
             client.Dispose();
 ```
-
-Author: MrPowerGamerBR#4185 (123170274651668480)
-Message: **Language**: Java
-**Library**: JDA
-
-(Using HttpRequest library)
-
-**Code**:
-```java
-String yourBotId = "40028922";
-String yourDiscordBotsOrgKey = "somethinglol";
-
-HttpRequest.post("https://discordbots.org/api/bots/" + yourBotId + "/stats")
-    .authorization(yourDiscordBotsOrgKey)
-    .acceptJson()
-    .send("{ \"server_count\": " + jda.getGuilds().getSize() + " }")
-    .body()
-```
-
-Author: Natan#1289 (182245310024777728)
-Message: **Language**: Java (with okhttp)
-**Library**: JDA
-**Code**: ```java
-private static final OkHttpClient client = new OkHttpClient();
-    
-public void sendStats() throws IOException {
-    JSONObject payload = new JSONObject().put("server_count", jda.getGuilds().size());
-    JDA.ShardInfo info = jda.getShardInfo();
-    if(info != null) {
-        payload.put("shard_id", info.getShardId()).put("shard_count", info.getShardTotal());
-    }
-
-    client.newCall(new Request.Builder()
-            .url("https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats")
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Authorization", "YOUR-TOKEN-GOES-HERE")
-            .post(RequestBody.create(MediaType.parse("application/json"), payload.toString()))
-            .build()
-    ).execute().close();
-}```
 
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Rust (async with hyper)
@@ -671,81 +491,6 @@ local path = "https://discordbots.org/api/bots/YOURBOTID/stats"
 end```
 **note**: never used lua a day in my life but should work ¯\_(ツ)_/¯
 
-Author: Xevryll#2253 (138481382794985472)
-Message: **Language:** Java 8
-**Library:** JDA
-**Code:**
-```java
-private void updateDiscordBotsCount(int i) {
-        try {
-            String auth = Credentials.DISCORDBOTS;
-
-            JSONObject json = new JSONObject().put("server_count", i);
-
-            String response = Unirest.post("https://discordbots.org/api/bots/{botId}/stats")
-                    .header("User-Agent", "Bot")
-                    .header("Authorization", auth)
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .body(json)
-                    .asString()
-                    .getStatusText();
-
-        } catch (UnirestException e) {
-            e.printStackTrace();
-        }
-    }
-```
-
-Author: Ague Mort#9036 (148336120936005632)
-Message: **Language**:  Java 8 (using Apache HTTP Client)
-**Library**: JDA 3 (sharded bot)
-**Code**: *All the valuable strings/passwords are stored in an ENUM named Config*
-```Java
-private static void updateDiscordBotsOrgServerCount(JDA jda) {
-        HttpClient client = HttpClientBuilder.create().disableCookieManagement().build();
-
-        URIBuilder uriBuilder = new URIBuilder();
-        uriBuilder
-                .setScheme("https")
-                .setHost("discordbots.org")
-                .setPath("/api/bots/" + Config.DISCORD_CLIENT_ID.token() + "/stats");
-
-        HttpPost post = null;
-
-        try {
-            post = new HttpPost(uriBuilder.build());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-        if (post != null) {
-            post.addHeader("Authorization", Config.DISCORD_BOTS_ORG.token());
-            post.addHeader("Content-Type", "application/json");
-
-            JSONObject json = new JSONObject();
-            json.put("server_count", jda.getGuilds().size());
-            json.put("shard_id", jda.getShardInfo().getShardId());
-            json.put("shard_count", jda.getShardInfo().getShardTotal());
-
-            try {
-                StringEntity entity = new StringEntity(json.toString());
-                post.setEntity(entity);
-
-                HttpResponse response = client.execute(post);
-
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    System.out.println("[~ERROR~] Failed updating server count on discordbots.org");
-                } else {
-                    System.out.println("[SYSTEM] Successfully updated server count on discordbots.org");
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }```
-
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Go
 **Code**:
@@ -789,14 +534,6 @@ func stats() {
 }
 ```
 
-Author: Ayylien™#3103 (248214880379863041)
-Message: **Language:** Java
-**Required:** Unirest
-```java
-Unirest.post(URL) .header("Authorization", Token)
-.field("server_count", serverCount);
-```
-
 Author: Snazzah#0371 (158049329150427136)
 Message: **Language**: Ruby
 **Library**: discordrb
@@ -804,59 +541,6 @@ Message: **Language**: Ruby
 ```rb
 bot = Discordrb::Commands::CommandBot.new(token: token, prefix: ['your_prefix_here'])
 RestClient.post("https://discordbots.org/api/bots/#{bot.bot_user.id}/stats", '{"server_count":'+bot.servers.count+'}', :'Authorization' => "DBOTS_TOKEN", :'Content-Type' => :json);
-```
-
-Author: ℒℯ 𝓦𝓲𝓷𝓽𝓮𝓻-𝔂 ℱℴ𝓍#9815 (288996157202497536)
-Message: Java using Unirest (http://unirest.io/java.html)
-```java
-public static void postStats(int serverCount) {
-    JSONObject obj = new JSONObject();
-    obj.put("server_count", serverCount);
-    try {
-        Unirest.post("https://discordbots.org/api/bots/:id/stats")
-            .header("Authorization", "Your token here")
-            .header("Content-Type", "application/json")
-            .body(obj.toString())
-            .asJson();
-    } catch(UnirestException e) {
-        e.printStackTrace();
-    }
-}
-```
-
-Author: Tis_awesomeness#8617 (211261249386708992)
-Message: **Language:** Java
-**Library:** JDA (works with other libraries if you edit it)
-**Code:**
-```java
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
-
-public class GuildCountExample {
-    public void sendGuilds() {
-        String url = "https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats";
-        int serverCount = jda.getGuilds().size();
-        int shardId = jda.getShardInfo().getShardId();
-        int shardCount = jda.getShardInfo().getShardTotal();
-        String query = "{\"server_count\": " + serverCount + ", \"shard_id\": " + shardId + ", \"shard_count\": " + shardCount + "}";
-        String token = jda.getToken();
-        String charset = java.nio.charset.StandardCharsets.UTF_8.name();
-        
-        URLConnection conn = new URL(url).openConnection();
-        conn.setDoOutput(true);
-        conn.setRequestProperty("Accept-Charset", charset);
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Authorization", token);
-        
-        OutputStream output = conn.getOutputStream();
-        output.write(query.getBytes(charset));
-        output.close();
-    }
-}
 ```
 
 Author: Erlite#2215 (244165871562391552)
