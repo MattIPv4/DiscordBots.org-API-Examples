@@ -1,3 +1,5 @@
+//add https://bintray.com/natanbc/maven/discordbots-api as a dependency
+
 import com.github.natanbc.discordbotsapi.BotInfo;
 import com.github.natanbc.discordbotsapi.BotStats;
 import com.github.natanbc.discordbotsapi.DiscordBotsAPI;
