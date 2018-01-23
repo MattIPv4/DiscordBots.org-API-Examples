@@ -16,30 +16,6 @@ curl "https://discordbots.org/api/bots/${USERID}/stats" \
 
 Note: `-i -v` are optional
 
-Author: spong#3338 (87164639695110144)
-Message: **Language**: Crystal
-**Library**: No specific discord library code but atm the only lib is discord.cr
-**Code**:
-```crystal
-require "http/client"
-require "json"
-
-token = "dab" # your discordbots.org token
-count = 52 # the number of servers your bot is in
-
-headers = HTTP::Headers{"Authorization" => token}
-
-body = {"server_count" => count}.to_json
-
-HTTP::Client.post("https://discordbots.org/api/bots/stats", headers: headers, body: body) do |res|
-  status = res.status_code
-
-  if status != 200
-    puts "Uh oh! Stats update responded with status #{status}!"
-  end
-end
-```
-
 Author: Habchy#1665 (162780049869635584)
 Message: **Language**: AutoHotKey
 **Library**: AHK4Discord by Habchy [<:soontm:230160205479018498>]
