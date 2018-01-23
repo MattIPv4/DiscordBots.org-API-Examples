@@ -96,18 +96,6 @@ try {
 }
 ```
 
-Author: King - Vlad#8339 (139836912335716352)
-Message: **Language**: Javascript
-**Library**: Discord.js, Eris, Discord.io ***and*** Discordie
-**Requirements**: You must install `dblposter` (`npm i dblposter` or `yarn add dblposter`)
-**Other notes**: The lib will automatically (or should) handle posting for you. That means on ready, guildCreate and guildDelete. And will always use sharded information. If you are afraid that it'll do anything malicious, check out <https://github.com/KingDGrizzle/dblposter>. The code is there, fully open sourced.
-**Code**: ```js
-const dbl = require("dblposter");
-const DBLPoster = new dbl(`API KEY`);
-
-// Then, depending on what you called your client
-DBLPoster.bind(client);```
-
 Author: 7coil#3175 (190519304972664832)
 Message: **Language:** bash
 **Requirements:** `curl`
@@ -125,51 +113,6 @@ curl "https://discordbots.org/api/bots/${USERID}/stats" \
 ```
 
 Note: `-i -v` are optional
-
-Author: ohlookitsAugust#1793 (280158289667555328)
-Message: **Language**: Javascript
-**Libraries**: Discord.js and Eris!
-**Requirements**: Must install `discordbots-api`! (`npm i discordbots-api`)
-**Code**
-```js
-const { DiscordBotsList } = require('discordbots-api');
-const DiscordBots = new DiscordBotsList('token');
-
-const shardID = '';
-const shardCount = ''; 
-const serverCount = '';
-const id = '';
- 
-DiscordBots.postStatsWithShards(shardID, shardCount, serverCount, id);
-
-// Without Sharding
-const servercount = ''; // Replace '' with your guild count.
- 
-DiscordBots.postStats(servercount);
-```
-
-Author: 7coil#3175 (190519304972664832)
-Message: **Language:** JavaScript + HTML
-**Lib:** Discord.js Webpack
-**Code:**
-```js
-$.ajax({
-    method: 'POST',
-    url: `https://discordbots.org/api/bots/${client.user.id}/stats`,
-    data: {
-        server_count: client.guilds.size
-    },
-    headers: {
-        authorization: 'toe_ken'
-    }
-});
-```
-```html
-<script
-    src="https://code.jquery.com/jquery-3.2.1.slim.js"
-    integrity="sha256-tA8y0XqiwnpwmOIl3SGAcFl2RvxHjA8qp0+1uCGmRmg="
-    crossorigin="anonymous"></script>
-```
 
 Author: trixie#3731 (265695159176396803)
 Message: **Language:** Lua
@@ -274,24 +217,6 @@ $result = curl_exec($ch);
 curl_close($ch);
 ```
 
-Author: ohlookitsAugust#1793 (280158289667555328)
-Message: **Language**: Javascript
-**Library**: discord.js with shard count
-**Code**:
-```js
-// bot is your Discord client.
-const snekfetch = require('snekfetch');
-const key = 'YOUR DBL KEY';
-
-snekfetch.post(`https://discordbots.org/api/bots/${bot.user.id}/stats`)
-    .set('Authorization', key)
-    .send({ server_count: bot.guilds.size, 
-          shard_count: bot.shard.count, 
-     shard_id: bot.shard.id })
-    .then(() => console.log(`Posted to dbl.`))
-    .catch((e) => console.error(e));
-```
-
 Author: spong#3338 (87164639695110144)
 Message: **Language:** Clojure
 **Code:**
@@ -332,37 +257,6 @@ usage:
 (updateStats "bot user id" "auth token" servercount)
 ```
 
-Author: Dim#4464 (219204779426054146)
-Message: **Language:** JavaScript
-**Library:** Discord.js
-**Note:** `client` variable may be different for you
-**Code:**
-```js
-// Default modules :^)
-const { stringify } = require('querystring');
-const { request } = require('https');
-
-const update = () => {
-  const data = stringify({ server_count: client.guilds.size });
-  const req = request({
-    host: 'discordbots.org',
-    path: `/api/bots/${client.user.id}/stats`,
-    method: 'POST',
-    headers: {
-      'Authorization': 'API TOKEN',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': Buffer.byteLength(data)
-    }
-  });
-  req.write(data);
-  req.end();
-};
-
-client.on('ready', update);
-client.on('guildCreate', update);
-client.on('guildRemove', update);
-```
-
 Author: duncte123#1245 (191231307290771456)
 Message: **Language:** Java
 **Library:** JDA
@@ -389,62 +283,6 @@ try {
 }```
 Full class example: <https://gist.github.com/duncte123/d3ebf090cadddd3d91eff1da112960b4>
 
-Author: Big P#1843 (139871249567318017)
-Message: **Language**:  Javascript
-**Library**: discord.io
-**Code**:  
-```js
-const request = require('request');
-client.on("guildCreate", function guildCreate() {
-    request.post({
-        headers: {
-            "Authorization": DISCORDBOTS_KEY,
-        },
-        url: `https://discordbots.org/api/bots/${DISCORDBOTS_ID}/stats`,
-        json: true,
-        body: {"server_count": Object.keys(client.servers).length}
-    }, function (err, resp, body) {
-        console.log(body);
-    });
-});
-```
-
-Author: Phanta#1328 (121778827788550146)
-Message: **Language:** JavaScript
-**Library:** Discord.JS with request-promise-native
-**Code:**
-```js
-const request = require('request-promise-native');
-function postServerCount() {
-    return request.post({
-        uri: `https://discordbots.org/api/bots/${bot.user.id}/stats`,
-        headers: {
-            Authorization: dblToken, // Insert token here
-        },
-        json: true,
-        body: {
-            server_count: bot.guilds.size,
-        },
-    });
-}
-```
-...where `bot` is your instance of `Discord.Client`. It works pretty much the same way with just regular ol' `request`, but you'll need to pass a callback instead of returning a promise.
-
-Author: luke#7034 (149505704569339904)
-Message: **Javascript | Discord.js, Eris, Discordie, Discord.io**
-```js
-const superagent = require('superagent')
-
-superagent.post(`https://discordbots.org/api/bots/stats`)
-  .set('Authorization', 'YOUR DISCORDBOTS.ORG API TOKEN')
-  .send({ server_count: client.guilds && client.guilds.size ? client.guilds.size : (client.Guilds ? client.Guilds.size : Object.keys(client.Servers).length) })
-  .then(() => console.log('Updated discordbots.org stats'))
-  .catch(err => console.error(`Error updating discordbots.org stats: ${err.body || err}`));
-```
-
-You should run this code on your libs guildDelete and guildCreate events. Replace `YOUR DISCORDBOTS.ORG API TOKEN` with the bot token provided at <https://discordbots.org/api/docs> **not the user token**
-If you utilise snekfetch in your code already, you can use that with this code.
-
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Crystal
 **Library**: No specific discord library code but atm the only lib is discord.cr
@@ -468,28 +306,6 @@ HTTP::Client.post("https://discordbots.org/api/bots/stats", headers: headers, bo
   end
 end
 ```
-
-Author: Vanished#3101 (267025484028706816)
-Message: **Language**: JavaScript
-**Library**: Discord.js
-**Code**:
-```js
-const dbl = require(`discord-bot-list`)
- 
-const client = new dbl({
-    token: "Your API token",
-    id: "Your bot's user id"
-})
-
-client.postStats("Your bot's server count, MUST be a number, not a string", (err, res) => {
-    if(err) {
-        console.error(err)
-    } else {
-        console.log(res)
-    }
-})```
-**Note:** Before you do this in your command panel (cmd) type in :  `npm install --save discord-bot-list` to install the dbl (DiscordBotList) package then you have to type in the code!
-
 
 Author: Habchy#1665 (162780049869635584)
 Message: **Language**: AutoHotKey
@@ -552,63 +368,6 @@ ExitApp
 
 <:no1:341047443149946884> Don't rely on this. Use it until you know how to emplement one of the other automatic ones. Also don't fake server count.
 
-Author: 7coil#3175 (190519304972664832)
-Message: **Language**: JavaScript
-**Library**: Discord.js / Eris
-**Code**:
-
-```js
-const https = require('https');
-
-const postData = JSON.stringify({
-    server_count: client.guilds.size
-});
-
-const options = {
-    hostname: 'https://discordbots.org',
-    path: `/api/bots/${client.user.id}/stats`,
-    method: 'POST',
-    headers: {
-        'User-Agent': 'DiscordBot (https://moustacheminer.com/) Discord Guild Counter',
-        'Content-Type': 'application/json',
-        'Content-Length': postData.length,
-        Authorization: 'AUTHTOKEN'
-    }
-};
-
-const req = https.request(options, (res) => {
-    res.on('data', (data) => {
-        console.log(data.toString('utf8'));
-    });
-});
-
-req.on('error', (error) => {
-    console.error(error);
-});
-
-req.write(postData);
-req.end();
-```
-
-Note: This uses the **HTTPS** module, which is already part of Node.js. No snekfetch here.
-
-Author: Tonkku#0950 (95579865788456960)
-Message: **Language**: Javascript
-**Library**: Discord.js / Eris
-**Code**: 
-```js
-const snekfetch = require('snekfetch')
-
-setInterval(() => {
-  snekfetch.post(`https://discordbots.org/api/bots/stats`)
-    .set('Authorization', 'YOUR DISCORDBOTS.ORG API TOKEN')
-    .send({ server_count: client.guilds.size })
-    .then(() => console.log('Updated discordbots.org stats.'))
-    .catch(err => console.error(`Whoops something went wrong: ${err.body}`));
-}, 3600000)
-```
-run the code in your ready event
-
 Author: Shengaero#9090 (211393686628597761)
 Message: **Language:** Kotlin
 **Library:** JDA (no KJDA required)
@@ -636,18 +395,6 @@ private inline fun OkHttpClient.newRequest(lazy: Request.Builder.() -> Unit) : C
     builder.lazy()
     return this.newCall(builder.build())
 }```
-
-Author: 7coil#3175 (190519304972664832)
-Message: **Language:** JavaScript
-**Library**: DiscordBlocks Web Edition (not Android)
-**Code**:
-https://moustacheminer.com/discord-blocks
-https://mss.ovh/1505418678.png
-
-Find in `Premade Functions` > `Bot Lists`
-
-Commonly asked questions:
-This is not Scratch
 
 Author: Natan#1289 (182245310024777728)
 Message: **Language**:  Any JVM language
@@ -794,70 +541,6 @@ HttpRequest.post("https://discordbots.org/api/bots/" + yourBotId + "/stats")
     .acceptJson()
     .send("{ \"server_count\": " + jda.getGuilds().getSize() + " }")
     .body()
-```
-
-Author: Yukine#1956 (184632227894657025)
-Message: **Language**: Javascript (node.js)
-**Library**: discord.js (sharded version with snekfetch)
-**Code**: 
-```js
-const snekfetch = require('snekfetch')
-const dbotstoken = "YOUR TOKEN"
-
-client.shard.fetchClientValues('guilds.size').then(result => {
-const guildsizes = result.reduce((prev, val) => prev + val, 0)
-    snekfetch.post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
-        .set('Authorization', dbotstoken)
-        .send({"server_count": guildsizes})
-        .then(() => console.log(`dbotsstats updated successfully`))
-        .catch(err => console.error(err))
-})
-```
-
-Author: Enra#0080 (156324425673736192)
-Message: **WARNING** : using the Git snapshot version of Eris is not tested. Use the npmjs.org version instead (``npm i eris --save``)
-
-Author: Enra#0080 (156324425673736192)
-Message: ``package.json`` defenitions :```json
-{
-  "dependencies" : {
-   "eris" : "github:abalabahaha/eris",
-   "got" :  "^6.7.1"
-   }
-}```
-
-Author: Enra#0080 (156324425673736192)
-Message: **Language**: JavaScript (Node.js) (ECMAScript Harmony)
-**Library**: Eris (``got`` request handler)
-**Code**: ```js
-const got = require('got');
-const dBotsKey = 'TOKEN_HERE';
-
-got(`https://discordbots.org/api/bots/${client.user.id}/stats`, {
-  method: 'POST',
-  headers: {Authorization: dBotsKey, 'Content-Type': 'application/json'},
-  body: JSON.stringify({server_count: bot.guilds.size})
- }).then(() =>  {
-     console.log('Successfully POSTed to Discord Bots');
-}).catch(err);```
-
-Author: Chipped#7011 (252541269602074635)
-Message: **Language:** Node.JS 
-**Library:** Eris (superagent http lib)
-**Code:**
-```js
-var request = require("superagent");
-var dbotsKey = "YOUR-TOKEN";
-request
-  .post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
-  .send(`{"server_count": ${client.guilds.size}}`)
-  .type('application/json')
-  .set('Authorization', dbotsKey)
-  .set('Accept', 'application/json')
-  .end(err => {
-      if (err) return console.error(err);
-      console.log("Success!");
-  });
 ```
 
 Author: Natan#1289 (182245310024777728)
@@ -1012,20 +695,6 @@ private void updateDiscordBotsCount(int i) {
             e.printStackTrace();
         }
     }
-```
-
-Author: Snazzah#0371 (158049329150427136)
-Message: **Language**: JavaScript
-**Library**: discordie
-**Code**: 
-```js
-let Discordie = require("discordie");
-let request = require("superagent");
-let bot = new Discordie();
-request.post(`https://discordbots.org/api/bots/${bot.User.id}/stats`)
-  .set('Authorization', dbots_token)
-  .send({server_count: bot.Guilds})
-  .end();
 ```
 
 Author: Ague Mort#9036 (148336120936005632)
@@ -1190,8 +859,6 @@ public class GuildCountExample {
 }
 ```
 
-
-
 Author: Erlite#2215 (244165871562391552)
 Message: **Language:** C#
 **Library:** Discord.NET
@@ -1209,17 +876,3 @@ using (var content = new StringContent($"{{ \"server_count\": {client.Guilds.Cou
 ```
 
 **Client is your DiscordSocketClient**
-
-Author: Professor#6699 (177286767903244288)
-Message: Jay Ess example to post server count using snekfetch best http module <:Thankeng:268552117885599745> 
-
-```js
-const snekfetch = require('snekfetch')
-
-snekfetch.post(`https://discordbots.org/api/bots/${client.user.id}/stats`)
-  .set('Authorization', 'UR DBOTS.ORG KEY')
-  .send({ server_count: client.guilds.size })
-  .then(console.log('Updated dbots.org status.'))
-  .catch(e => console.warn('dbots.org down spam @oliy'));
-```
-*NOTE: this code was written for discord.js but you can just change source of server count and id to work for other js libs*
