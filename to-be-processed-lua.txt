@@ -40,3 +40,26 @@ function sendRequest(count)
   local res, code, response_headers, status = print(http.request("POST", "https://discordbots.org/api/bots/YOUR BOT ID HERE/stats", {{"Content-Type", "application/json"}, {"Authorization", "YOUR TOKEN HERE"}}, '{"server_count":'..client.guildCount..'}'))
 end```
 No sharding
+
+
+Author: Tom™#7887 (248294452307689473)
+Message: **Language:** lua
+```lua
+local http = require("socket.http")
+local ltn12 = require("ltn12")
+
+function sendRequest()
+local path = "https://discordbots.org/api/bots/YOURBOTID/stats"
+  local payload = [[ {"servers":"count","shard_id":"shardid","shard_count":"shardcount"} ]]
+  local res, code, response_headers, status = http.request
+  {
+    url = path,
+    method = "POST",
+    headers =
+    {
+      ["Authorization"] = "YOURKEY", 
+      ["Content-Type"] = "application/json"
+    },
+    source = ltn12.source.string(payload), }
+end```
+**note**: never used lua a day in my life but should work ¯\_(ツ)_/¯
