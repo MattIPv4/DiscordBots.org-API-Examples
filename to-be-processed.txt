@@ -16,67 +16,6 @@ curl "https://discordbots.org/api/bots/${USERID}/stats" \
 
 Note: `-i -v` are optional
 
-Author: Habchy#1665 (162780049869635584)
-Message: **Language**: AutoHotKey
-**Library**: AHK4Discord by Habchy [<:soontm:230160205479018498>]
-**Code**:
-
-```autohotkey
-;remove maximus and put your bot name
-botname = Maximus
-
-Gui, poster:Color, 0x3cb1f9
-Gui, poster:Add, Text, x5 y5 w95 h15, %botname% API Poster
-Gui, poster:Add, Text, x5 y20 w95 h15, Made by Habchy
-Gui, poster:Add, Text, x5 y35 w60 h15, Version 1.3
-Gui, poster:Add, Button, x150 y5 w195 h40 gmaxistart, Post
-Gui, poster:Show, w349 h49, API Poster
-return
-
-posterGuiClose:
-goto exiting
-
-maxistart:
-serverfile = %A_Temp%\servercount.txt
-FileDelete %A_Temp%\servercount.txt
-MsgBox, 64, API Poster, API Poster will launch in 3 seconds.,3
-
-InputBox, servers, Server Count Poster, How many servers is %botname% on?
-Sleep, 2000
-InputBox, shards, Server Shard Poster, How many shards is %botname% on?
-Sleep, 2000
-
-FileAppend,
-(
-{
-  "server_count": %servers%,
-  "shard_id": 0,
-  "shard_count": %shards%
-}
-), %serverfile%
-FileRead, Max, %A_Temp%\servercount.txt
-
-WinHTTP := ComObjCreate("WinHTTP.WinHttpRequest.5.1")
-;~ WinHTTP.SetProxy(0)
-WinHTTP.Open("POST", "https://discordbots.org/api/bots/YOUR BOTS CLIENT ID/stats", 0)
-WinHTTP.SetRequestHeader("Authorization", "YOUR API TOKEN FOR YOUR BOT")
-WinHTTP.SetRequestHeader("Content-Type", "application/json")
-;linebreak---------------------
-WinHTTP.Send(Max)
-Result := WinHTTP.ResponseText
-Status := WinHTTP.Status
-
-msgbox % "status: " status "`n`nresult: " result
-return
-
-exiting:
-F4::
-MsgBox, 64, API Poster, Shutting down. Goodbye! 👋,2
-ExitApp
-```
-
-<:no1:341047443149946884> Don't rely on this. Use it until you know how to emplement one of the other automatic ones. Also don't fake server count.
-
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Golo (with OkHttp)
 **Library**: JDA
