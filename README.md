@@ -1,4 +1,4 @@
-# DiscordBots.org-API-Examples
+# DiscordBots.org Bot Stats API Examples
 
 All files are organised as so: `/{language}/{library}/Example-{type}.{ext}` or in the event no Discord API library is used: `/{language}/Example-{type}.{ext}`.
 
