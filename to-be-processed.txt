@@ -16,55 +16,6 @@ curl "https://discordbots.org/api/bots/${USERID}/stats" \
 
 Note: `-i -v` are optional
 
-Author: spong#3338 (87164639695110144)
-Message: **Language**: Rust (async with hyper)
-**Code**:
-```toml
-hyper = "0.11.0"
-hyper-tls = "0.1.0"
-tokio-core = "0.1"
-futures = "0.1.14"
-```
-```rust
-extern crate hyper;
-extern crate hyper_tls;
-extern crate tokio_core;
-extern crate futures;
-
-use hyper::{Client, Request, Method};
-use hyper::header::ContentType;
-use hyper_tls::HttpsConnector;
-use tokio_core::reactor::Core;
-use futures::Future;
-
-fn main() {
-    let client_id: &str;   // bot client id
-    let server_count: i32; // server count
-    let api_token: &str;   // discordbots.org api token
-
-    // a new tokio core instance, this works as an event loop so obviously you should not create a new instance every time stats are posted
-    let mut core = Core::new().unwrap();
-    let handle = core.handle();
-    let client = Client::configure()
-        .connector(HttpsConnector::new(4, &handle).unwrap())
-        .build(&handle);
-
-    let uri = format!("https://discordbots.org/api/bots/{}/stats", client_id).parse()
-        .expect("could not parse uri");
-    let json = format!(r#"{{"server_count":{}}}"#, server_count);
-
-    let mut req = Request::new(Method::Post, uri);
-    req.headers_mut().set_raw("Authorization", api_token);
-    req.headers_mut().set(ContentType::json());
-    req.set_body(json);
-
-    let task = client.request(req).map(|res| {
-        println!("Status: {}", res.status());
-    });
-    core.run(task).expect("an error occurred when sending a request!");
-}
-```
-
 Author: Neo#5159 (223754830747926528)
 Message: **Language**: Neo
 **Library**: discord.neo
