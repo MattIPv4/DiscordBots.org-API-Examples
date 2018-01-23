@@ -1,0 +1,16 @@
+Author: Neo#5159 (223754830747926528)
+Message: **Language**: Neo
+**Library**: discord.neo
+**Code**: 
+```neo
+from neo ; import discordbots.org
+
+
+link neo is: https://discordbots.org/api/bots/&&BOT_ID_CLIENT&&/stats
+
+neo define(neo, bot, link)::
+send = next.link.send.info === (&&SERVER_COUNT_BOT_CLIENT%%$&&(link join neo_libary.link))
+join_server = 
+bot_client&&send&&
+leave server = 
+bot_client&&send&&```
