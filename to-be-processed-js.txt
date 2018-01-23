@@ -1,15 +1,6 @@
-Author: King - Vlad#8339 (139836912335716352)
-Message: **Language**: Javascript
-**Library**: Discord.js, Eris, Discord.io ***and*** Discordie
-**Requirements**: You must install `dblposter` (`npm i dblposter` or `yarn add dblposter`)
-**Other notes**: The lib will automatically (or should) handle posting for you. That means on ready, guildCreate and guildDelete. And will always use sharded information. If you are afraid that it'll do anything malicious, check out <https://github.com/KingDGrizzle/dblposter>. The code is there, fully open sourced.
-**Code**: ```js
-const dbl = require("dblposter");
-const DBLPoster = new dbl(`API KEY`);
-
-// Then, depending on what you called your client
-DBLPoster.bind(client);```
-
+=============
+Discord.js / Eris
+=============
 
 Author: ohlookitsAugust#1793 (280158289667555328)
 Message: **Language**: Javascript
@@ -109,27 +100,6 @@ client.on('guildRemove', update);
 ```
 
 
-Author: Big P#1843 (139871249567318017)
-Message: **Language**:  Javascript
-**Library**: discord.io
-**Code**:  
-```js
-const request = require('request');
-client.on("guildCreate", function guildCreate() {
-    request.post({
-        headers: {
-            "Authorization": DISCORDBOTS_KEY,
-        },
-        url: `https://discordbots.org/api/bots/${DISCORDBOTS_ID}/stats`,
-        json: true,
-        body: {"server_count": Object.keys(client.servers).length}
-    }, function (err, resp, body) {
-        console.log(body);
-    });
-});
-```
-
-
 Author: Phanta#1328 (121778827788550146)
 Message: **Language:** JavaScript
 **Library:** Discord.JS with request-promise-native
@@ -150,21 +120,6 @@ function postServerCount() {
 }
 ```
 ...where `bot` is your instance of `Discord.Client`. It works pretty much the same way with just regular ol' `request`, but you'll need to pass a callback instead of returning a promise.
-
-
-Author: luke#7034 (149505704569339904)
-Message: **Javascript | Discord.js, Eris, Discordie, Discord.io**
-```js
-const superagent = require('superagent')
-
-superagent.post(`https://discordbots.org/api/bots/stats`)
-  .set('Authorization', 'YOUR DISCORDBOTS.ORG API TOKEN')
-  .send({ server_count: client.guilds && client.guilds.size ? client.guilds.size : (client.Guilds ? client.Guilds.size : Object.keys(client.Servers).length) })
-  .then(() => console.log('Updated discordbots.org stats'))
-  .catch(err => console.error(`Error updating discordbots.org stats: ${err.body || err}`));
-```
-You should run this code on your libs guildDelete and guildCreate events. Replace `YOUR DISCORDBOTS.ORG API TOKEN` with the bot token provided at <https://discordbots.org/api/docs> **not the user token**
-If you utilise snekfetch in your code already, you can use that with this code.
 
 
 Author: Vanished#3101 (267025484028706816)
@@ -246,19 +201,6 @@ setInterval(() => {
 run the code in your ready event
 
 
-Author: 7coil#3175 (190519304972664832)
-Message: **Language:** JavaScript
-**Library**: DiscordBlocks Web Edition (not Android)
-**Code**:
-https://moustacheminer.com/discord-blocks
-https://mss.ovh/1505418678.png
-
-Find in `Premade Functions` > `Bot Lists`
-
-Commonly asked questions:
-This is not Scratch
-
-
 Author: Yukine#1956 (184632227894657025)
 Message: **Language**: Javascript (node.js)
 **Library**: discord.js (sharded version with snekfetch)
@@ -314,6 +256,35 @@ request
 ```
 
 
+=============
+Discord.io
+=============
+
+Author: Big P#1843 (139871249567318017)
+Message: **Language**:  Javascript
+**Library**: discord.io
+**Code**:  
+```js
+const request = require('request');
+client.on("guildCreate", function guildCreate() {
+    request.post({
+        headers: {
+            "Authorization": DISCORDBOTS_KEY,
+        },
+        url: `https://discordbots.org/api/bots/${DISCORDBOTS_ID}/stats`,
+        json: true,
+        body: {"server_count": Object.keys(client.servers).length}
+    }, function (err, resp, body) {
+        console.log(body);
+    });
+});
+```
+
+
+=============
+Discordie
+=============
+
 Author: Snazzah#0371 (158049329150427136)
 Message: **Language**: JavaScript
 **Library**: discordie
@@ -327,3 +298,52 @@ request.post(`https://discordbots.org/api/bots/${bot.User.id}/stats`)
   .send({server_count: bot.Guilds})
   .end();
 ```
+
+
+=============
+DiscordBlocks
+=============
+
+Author: 7coil#3175 (190519304972664832)
+Message: **Language:** JavaScript
+**Library**: DiscordBlocks Web Edition (not Android)
+**Code**:
+https://moustacheminer.com/discord-blocks
+https://mss.ovh/1505418678.png
+
+Find in `Premade Functions` > `Bot Lists`
+
+Commonly asked questions:
+This is not Scratch
+
+
+=============
+All common libs
+=============
+
+Author: King - Vlad#8339 (139836912335716352)
+Message: **Language**: Javascript
+**Library**: Discord.js, Eris, Discord.io ***and*** Discordie
+**Requirements**: You must install `dblposter` (`npm i dblposter` or `yarn add dblposter`)
+**Other notes**: The lib will automatically (or should) handle posting for you. That means on ready, guildCreate and guildDelete. And will always use sharded information. If you are afraid that it'll do anything malicious, check out <https://github.com/KingDGrizzle/dblposter>. The code is there, fully open sourced.
+**Code**: ```js
+const dbl = require("dblposter");
+const DBLPoster = new dbl(`API KEY`);
+
+// Then, depending on what you called your client
+DBLPoster.bind(client);```
+
+
+Author: luke#7034 (149505704569339904)
+Message: **Javascript | Discord.js, Eris, Discordie, Discord.io**
+```js
+const superagent = require('superagent')
+
+superagent.post(`https://discordbots.org/api/bots/stats`)
+  .set('Authorization', 'YOUR DISCORDBOTS.ORG API TOKEN')
+  .send({ server_count: client.guilds && client.guilds.size ? client.guilds.size : (client.Guilds ? client.Guilds.size : Object.keys(client.Servers).length) })
+  .then(() => console.log('Updated discordbots.org stats'))
+  .catch(err => console.error(`Error updating discordbots.org stats: ${err.body || err}`));
+```
+You should run this code on your libs guildDelete and guildCreate events. Replace `YOUR DISCORDBOTS.ORG API TOKEN` with the bot token provided at <https://discordbots.org/api/docs> **not the user token**
+If you utilise snekfetch in your code already, you can use that with this code.
