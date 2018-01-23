@@ -16,33 +16,6 @@ curl "https://discordbots.org/api/bots/${USERID}/stats" \
 
 Note: `-i -v` are optional
 
-Author: IPv4#6434 (193060889111298048)
-Message: **Language:** PHP
-**Library:** N/A
-**Code:**
-```php
-$GUILDCOUNT = 10;
-$BOTID = "1234567890";
-$AUTH = "somereallylongapiauthcodefromdbl";
-
-$dblData = ["server_count"=>$GUILDCOUNT];
-$dblData = json_encode($dblData);
-$dblURL = "https://discordbots.org/api/bots/".$BOTID."/stats";
-
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $dblURL);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $dblData);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Authorization: '.$AUTH,
-    'Content-Type: application/json'
-));
-$result = curl_exec($ch);
-curl_close($ch);
-```
-
 Author: spong#3338 (87164639695110144)
 Message: **Language**: Crystal
 **Library**: No specific discord library code but atm the only lib is discord.cr
