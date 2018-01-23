@@ -17,39 +17,6 @@ curl "https://discordbots.org/api/bots/${USERID}/stats" \
 Note: `-i -v` are optional
 
 Author: spong#3338 (87164639695110144)
-Message: **Language**: Golo (with OkHttp)
-**Library**: JDA
-**Code**:
-```golo
-let discordbotsToken = "YOUR DISCORDBOTS.ORG TOKEN"
-
-let client = OkHttpClient()
-let jsonMediaType = MediaType.parse("application/json")
-
-function sendStats = |jda| {
-    let payload = JSONObject():
-        put("server_count", jda: getGuilds(): size())
-        
-    let info = jda: getShardInfo()
-    if (info != null) {
-        payload:
-            put("shard_id", info: getShardId()):
-            put("shard_count", info: getShardTotal())
-    }
-    
-    let body = RequestBody.create(jsonMediaType, payload: toString())
-    
-    let request = Request.Builder():
-        url("https://discordbots.org/api/bots/" + jda: getSelfUser(): getId() + "/stats"):
-        addHeader("Authorization", discordbotsToken):
-        post(body):
-        build()
-    
-    client: newCall(request): execute()
-}
-```
-
-Author: spong#3338 (87164639695110144)
 Message: **Language**: Rust (async with hyper)
 **Code**:
 ```toml
