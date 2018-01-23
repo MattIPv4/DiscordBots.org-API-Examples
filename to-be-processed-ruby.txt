@@ -1,0 +1,37 @@
+Author: aetaric#1427 (188105444365959170)
+Message: **Language**: Ruby
+**Library**: discordrb
+**Code**: ```ruby
+require 'net/http'
+require 'json'
+
+body = {}
+body["server_count"] = $bot.servers.count
+body["shard_id"] = shard
+body["shard_count"] = total_shards
+
+uri = URI.parse("https://discordbots.org/api/bots/#{bot.profile.id}/stats")
+request = Net::HTTP::Post.new(uri)
+request["Authorization"] = "#{dbl_token}"
+request["Content-Type"] = "application/json"
+request.body = JSON.dump(body)
+
+req_options = {
+  use_ssl: uri.scheme == "https",
+}
+
+response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+  http.request(request)
+end
+```
+This example assumes sharding, but uses the native Net::HTTP and JSON modules instead of third party libs.
+
+
+Author: Snazzah#0371 (158049329150427136)
+Message: **Language**: Ruby
+**Library**: discordrb
+**Code**: 
+```rb
+bot = Discordrb::Commands::CommandBot.new(token: token, prefix: ['your_prefix_here'])
+RestClient.post("https://discordbots.org/api/bots/#{bot.bot_user.id}/stats", '{"server_count":'+bot.servers.count+'}', :'Authorization' => "DBOTS_TOKEN", :'Content-Type' => :json);
+```
