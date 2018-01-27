@@ -22,3 +22,7 @@ private static final OkHttpClient client = new OkHttpClient();
         }
     }
 }
+
+// Listeners
+api.addServerLeaveListener(event -> updateServerCount(api));
+api.addServerJoinListener(event -> updateServerCount(api));
