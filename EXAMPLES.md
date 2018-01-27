@@ -2,20 +2,20 @@
 
 ## Bash
 ### Language Non-Specific
-* Non-Sharded
+* [Non-Sharded](bash/Example-NoShards.sh)
 
 ## Golang
 ### DiscordGo
-* All
+* [All](golang/discordgo/Example-All.go)
 
 ## PHP
 ### Language Non-Specific
-* Non-Sharded
+* [Non-Sharded](php/Example-NoShards.php)
 
 ## Python
 ### Discord.py Async
-* Sharded
-* Non-Sharded
+* [Sharded](python/discordpy-async/Example-Shards.py)
+* [Non-Sharded](python/discordpy-async/Example-NoShards.py)
 ### Discord.py Rewrite
-* Sharded
-* Non-Sharded
+* [Sharded](python/discordpy-rewrite/Example-Shards.py)
+* [Non-Sharded](python/discordpy-rewrite/Example-NoShards.py)
