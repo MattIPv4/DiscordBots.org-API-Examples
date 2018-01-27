@@ -6,10 +6,12 @@ In every example `DBLAPIKEY` is used to represent where your DiscordBots.org bot
 
 If a Discord API library is not used `DISCORDBOTID` is used to indicate your bot ID and the file will be clearly commented to indicate where a guild count should go.
 
+For a full and quick access list of all examples we have please read [EXAMPLES](EXAMPLES.md)
+
 Types:
 * NoShards - Example written to only post guild count without shards.
 * Shards - Supports bots that are using shards.
 * All - Supports both sharded and non-sharded bots.
 
 ## Contributing
-Please read CONTRIBUTING.md
+Please read [CONTRIBUTING](CONTRIBUTING.md)
