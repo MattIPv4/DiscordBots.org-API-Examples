@@ -10,7 +10,7 @@ class DiscordBotsOrgAPI:
     def __unload(self):
         self.bot.loop.create_task(self.session.close())
         
-    async def send(self):
+    async def update(self):
         payload = json.dumps({
             'shard_id': self.bot.shard_id,
             'shard_count': self.bot.shard_count,
