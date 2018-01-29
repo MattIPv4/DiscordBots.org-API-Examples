@@ -10,4 +10,4 @@
 If you wish to help, please follow the following when creating a PR:
 * Example file should be added in the correct folder location (see above)
 * The example relies on standard libraries in your language, and if using a Discord API, preferably the same http client as the Discord API lib uses.
-* Any examples from the langauge/library removed from to-be-processed-{language}.txt
+* Any examples from your langauge/library combination should be removed from the relevant to-be-processed file if applicable.
