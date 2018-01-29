@@ -9,5 +9,5 @@
 ## Adding new examples
 If you wish to help, please follow the following when creating a PR:
 * Example file should be added in the correct folder location (see above)
-* The example relies on standard libraries in your language, and if using a Discord API, preferably the same web lib as the Discord API lib uses.
+* The example relies on standard libraries in your language, and if using a Discord API, preferably the same http client as the Discord API lib uses.
 * Any examples from the langauge/library removed from to-be-processed-{language}.txt
