@@ -22,7 +22,7 @@ class DiscordBotsOrgAPI:
             'Content-type' : 'application/json'
         }
 
-        url = f'https://discordbots.org/bots/{self.bot.user.id}/stats'
+        url = f'https://discordbots.org/api/bots/{self.bot.user.id}/stats'
 
         async with self.session.post(url, data=payload, headers=head) as req:
             if req.status == 200:
