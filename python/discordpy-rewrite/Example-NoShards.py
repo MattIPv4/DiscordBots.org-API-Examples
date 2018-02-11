@@ -17,18 +17,18 @@ class DiscordBotsOrgAPI:
         })
         head = {
             'Authorization': self.key,
-            'Content-type' : 'application/json'
+            'Content-type': 'application/json'
         }
 
-        url = '{}/bots/{}/stats'.format('https://discordbots.org/api', self.bot.user.id)
+        url = f'https://discordbots.org/api/bots/{self.bot.user.id}/stats'
 
         async with self.session.post(url, data=payload, headers=head) as req:
             if req.status == 200:
                 logging.info('poster[dbl]: done')
             else:
                 t = await req.text()
-                logging.error('poster[dbl]: failed (code {})'.format(req.status))
-                logging.error('poster[dbl]: response: {}'.format(t))
+                logging.error(f'poster[dbl]: failed (code {req.status})')
+                logging.error(f'poster[dbl]: response: {t}')
         
     async def on_guild_join(self, guild):
         await self.update()
