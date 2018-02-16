@@ -7,6 +7,9 @@ import com.github.natanbc.discordbotsapi.Search;
 import com.github.natanbc.discordbotsapi.Sort;
 import com.github.natanbc.discordbotsapi.UserInfo;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.IntSupplier;
 import java.util.stream.Stream;
 
 public class StatsPoster {
@@ -28,6 +31,30 @@ public class StatsPoster {
     public void postStats(int guildCount) {
         //there's no real reason to wait until the request is done
         api.postStats(guildCount).async();
+    }
+
+    //postEveryThirtyMinutes(shardId, shardTotal, ()->yourDiscordWrapper.getGuildCount());
+    public void postEveryThirtyMinutes(int shardId, int shardTotal, IntSupplier shardCountSupplier) {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(()->{
+            try {
+                api.postStats(shardId, shardTotal, shardCountSupplier.getAsInt()).async();
+            } catch(Exception e) {
+                System.err.println("Supplier for shard count threw an exception");
+                e.printStackTrace();
+            }
+        }, 30, 30, TimeUnit.MINUTES);
+    }
+
+    //postEveryThirtyMinutes(()->yourDiscordWrapper.getGuildCount());
+    public void postEveryThirtyMinutes(IntSupplier shardCountSupplier) {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(()->{
+            try {
+                api.postStats(shardCountSupplier.getAsInt()).async();
+            } catch(Exception e) {
+                System.err.println("Supplier for shard count threw an exception");
+                e.printStackTrace();
+            }
+        }, 30, 30, TimeUnit.MINUTES);
     }
 
 
@@ -57,21 +84,20 @@ public class StatsPoster {
     }
 
     //index() uses the search endpoint under the hoods, but handles pagination
-    
+
     public Stream<BotInfo> getCertifiedBotsWithMultipleOwners() {
         return api.index(new Search.Builder()
                 .certified(true)
                 .build()
         ).stream().filter(bot->bot.getOwners().length > 1);
     }
-    
+
     public Iterable<BotInfo> getMusicBotsOrderedByName() {
         return api.index(
                 Sort.byUsername().reverse(),
                 new Search.Builder()
-                    .withTags(new String[]{"music"})
-                    .build()
+                        .withTags(new String[]{"music"})
+                        .build()
         );
     }
 }
-
