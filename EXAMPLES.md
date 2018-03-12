@@ -9,6 +9,7 @@
 * [All](golang/discordgo/Example-All.go)
 
 ## Java
+### Language Non-Specific
 * [All](java/Example-All.java)
 
 ## PHP
