@@ -13,7 +13,9 @@ class DiscordBotsOrgAPI:
         
     async def update(self):
         payload = json.dumps({
-            'server_count': len(self.bot.guilds)
+            'shard_id': self.bot.shard_id,
+            'shard_count': self.bot.shard_count,
+            'server_count': len(self.bot.servers)
         })
         head = {
             'Authorization': self.key,
@@ -30,10 +32,10 @@ class DiscordBotsOrgAPI:
                 logging.error('poster[dbl]: failed (code {})'.format(req.status))
                 logging.error('poster[dbl]: response: {}'.format(t))
         
-    async def on_guild_join(self, guild):
+    async def on_server_join(self, server):
         await self.update()
         
-    async def on_guild_remove(self, guild):
+    async def on_server_remove(self, server):
         await self.update()
         
     async def on_ready(self):

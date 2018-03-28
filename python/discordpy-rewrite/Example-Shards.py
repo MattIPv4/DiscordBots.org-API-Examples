@@ -13,6 +13,8 @@ class DiscordBotsOrgAPI:
         
     async def update(self):
         payload = json.dumps({
+            'shard_id': self.bot.shard_id,
+            'shard_count': self.bot.shard_count,
             'server_count': len(self.bot.guilds)
         })
         head = {
