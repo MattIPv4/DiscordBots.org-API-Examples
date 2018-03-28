@@ -8,6 +8,10 @@
 ### DiscordGo
 * [All](golang/discordgo/Example-All.go)
 
+## Java
+### Language Non-Specific
+* [All](java/Example-All.java)
+
 ## PHP
 ### Language Non-Specific
 * [Non-Sharded](php/Example-NoShards.php)
