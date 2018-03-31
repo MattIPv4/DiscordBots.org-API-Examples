@@ -321,19 +321,6 @@ This is not Scratch
 All common libs
 =============
 
-Author: King - Vlad#8339 (139836912335716352)
-Message: **Language**: Javascript
-**Library**: Discord.js, Eris, Discord.io ***and*** Discordie
-**Requirements**: You must install `dblposter` (`npm i dblposter` or `yarn add dblposter`)
-**Other notes**: The lib will automatically (or should) handle posting for you. That means on ready, guildCreate and guildDelete. And will always use sharded information. If you are afraid that it'll do anything malicious, check out <https://github.com/KingDGrizzle/dblposter>. The code is there, fully open sourced.
-**Code**: ```js
-const dbl = require("dblposter");
-const DBLPoster = new dbl(`API KEY`);
-
-// Then, depending on what you called your client
-DBLPoster.bind(client);```
-
-
 Author: luke#7034 (149505704569339904)
 Message: **Javascript | Discord.js, Eris, Discordie, Discord.io**
 ```js

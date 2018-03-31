@@ -12,6 +12,10 @@
 ### Language Non-Specific
 * [All](java/Example-All.java)
 
+## JavaScript
+## Language Non-Specific
+* [All](javascript/Example-All.js)
+
 ## PHP
 ### Language Non-Specific
 * [Non-Sharded](php/Example-NoShards.php)
