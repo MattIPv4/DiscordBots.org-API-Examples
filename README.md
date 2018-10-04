@@ -1,3 +1,6 @@
+# Warning: this repository is abandoned
+ Please consider using [discordlists.py](https://github.com/MattIPv4/discordlists.py/) to send your server/guild counts to bot lists (including DiscordBots.org). discordlists.py is also available on [PyPi](https://pypi.org/project/discordlists.py/).
+
 # DiscordBots.org Bot Stats API Examples
 
 All files are organised as so: `/{language}/{library}/Example-{type}.{ext}` or in the event no Discord API library is used: `/{language}/Example-{type}.{ext}`.
